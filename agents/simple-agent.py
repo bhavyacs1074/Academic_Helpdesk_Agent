@@ -10,6 +10,7 @@ policy_agent = Agent(
     model=LiteLlm(
         model="ollama_chat/gemma4:e4b",
         api_base="http://localhost:11434",
+        extra_body={"think": False},
     ),
     name="policy_agent",
     description="A specialized agent that provides information and guidance on academic policies, procedures, and regulations.",
@@ -19,6 +20,8 @@ schedule_agent = Agent(
     model=LiteLlm(
         model="ollama_chat/gemma4:e4b",
         api_base="http://localhost:11434",
+        extra_body={"think": False},
+
     ),
     name="schedule_agent",
     description="A specialized agent that assists students with scheduling, course planning, and time management.",
@@ -28,6 +31,7 @@ email_agent = Agent(
     model=LiteLlm(
         model="ollama_chat/gemma4:e4b",
         api_base="http://localhost:11434",
+        extra_body={"think": False},
     ),
     name="email_agent",
     description="A specialized agent that helps students with email communication, including drafting, editing, and responding to emails.",
@@ -36,6 +40,7 @@ root_agent = Agent(
     model=LiteLlm(
         model="ollama_chat/gemma4:e4b",
         api_base="http://localhost:11434",
+        extra_body={"think": False},
     ),
     name="academic_helpdesk_agent_orchestrator",
     description="An orchestrator agent that manages multiple specialized agents to provide academic assistance to students.",
@@ -56,7 +61,7 @@ root_agent = Agent(
 async def main():
     
     runner = InMemoryRunner(root_agent)
-    events = await runner.run_debug("What is the difference between supervised and unsupervised learning?")
+    events = await runner.run_debug("Write a mail to the proffessor asking for a sick leave")
 
 if __name__ == "__main__":
     asyncio.run(main())

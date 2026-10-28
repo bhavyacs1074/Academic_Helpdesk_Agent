@@ -53,7 +53,7 @@ joserfc==1.7.7
 jsonschema==4.26.0
 jsonschema-specifications==2025.9.1
 kubernetes==37.0.1
-litellm==1.106.4
+litellm[mcp]==1.106.4
 markdown-it-py==4.2.0
 MarkupSafe==3.0.4
 mdurl==0.1.2
