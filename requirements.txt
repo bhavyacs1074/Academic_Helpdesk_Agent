@@ -21,6 +21,7 @@ click==8.5.0
 cryptography==50.0.2
 distro==1.9.0
 durationpy==0.11
+et_xmlfile==2.0.0
 fastapi==0.162.0
 fastuuid==0.14.0
 filelock==3.32.7
@@ -62,6 +63,7 @@ numpy==2.5.4
 oauthlib==4.0.0
 onnxruntime==1.31.0
 openai==2.54.0
+openpyxl==3.1.5
 opentelemetry-api==1.44.0
 opentelemetry-exporter-otlp-proto-common==1.44.0
 opentelemetry-exporter-otlp-proto-grpc==1.44.0
