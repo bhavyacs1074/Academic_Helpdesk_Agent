@@ -1,9 +1,32 @@
+import asyncio
 import tempfile
 import unittest
+from collections.abc import AsyncIterator
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from agents import retrieval, review_tickets
+
+
+class FakeSessionService:
+    async def get_session(self, **_: object) -> object:
+        return object()
+
+
+class FakeRunner:
+    app_name = "test-app"
+    session_service = FakeSessionService()
+
+    def __init__(self, events: list[SimpleNamespace]) -> None:
+        self.events = events
+
+    def run_async(self, **_: object) -> AsyncIterator[SimpleNamespace]:
+        async def generate_events():
+            for event in self.events:
+                yield event
+
+        return generate_events()
 
 
 class EmptyCollection:
@@ -70,6 +93,112 @@ class RetrievalEscalationTests(unittest.TestCase):
         self.assertEqual(result["status"], "open")
         self.assertIn("disagree", ticket["reason"])
         self.assertIn("timetable.csv", ticket["evidence"][0]["summary"])
+
+    def test_explicit_specialist_abstention_creates_ticket_and_replaces_reply(self) -> None:
+        from agents.academic_agent import _ensure_review_ticket
+
+        question = "Which course is the most highly rated this semester?"
+        model_reply = (
+            "I do not have access to student rating information for courses, "
+            "so I cannot tell you which course is most highly rated. My "
+            "functions allow me to look up course codes and counts. I recommend "
+            "you ask this question to the academic_helpdesk_agent_orchestrator."
+        )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            database = Path(temporary_directory) / "review_tickets.db"
+            with patch.object(review_tickets, "TICKET_DB_PATH", database):
+                result = _ensure_review_ticket(
+                    question,
+                    model_reply,
+                    "schedule_agent",
+                )
+                tickets = review_tickets.list_tickets()
+
+        self.assertIn("forwarded your question", result)
+        self.assertIn("Review ticket ID:", result)
+        self.assertNotIn("ask this question to", result)
+        self.assertEqual(len(tickets), 1)
+        self.assertEqual(tickets[0]["question"], question)
+        self.assertIn(
+            "Unverified specialist response:",
+            tickets[0]["evidence"][0]["summary"],
+        )
+
+    def test_supported_specialist_response_does_not_create_ticket(self) -> None:
+        from agents.academic_agent import _ensure_review_ticket
+
+        response = "The course is listed in the official timetable for semester 2."
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            database = Path(temporary_directory) / "review_tickets.db"
+            with patch.object(review_tickets, "TICKET_DB_PATH", database):
+                result = _ensure_review_ticket(
+                    "When is the course offered?",
+                    response,
+                    "schedule_agent",
+                )
+                tickets = review_tickets.list_tickets()
+
+        self.assertEqual(result, response)
+        self.assertEqual(tickets, [])
+
+    def test_only_academic_specialist_abstentions_trigger_fallback(self) -> None:
+        from agents.academic_agent import _ensure_review_ticket
+
+        reply = "I cannot answer because that data is not available."
+        self.assertEqual(
+            _ensure_review_ticket("question", reply, "email_agent"),
+            reply,
+        )
+
+    def test_streaming_withholds_specialist_abstention_until_ticket_is_created(self) -> None:
+        from agents import academic_agent
+
+        question = "Which course is the most highly rated this semester?"
+        partial = "I do not have access to student rating information."
+        complete = (
+            "I do not have access to student rating information for courses, "
+            "so I cannot tell you the highest-rated course."
+        )
+
+        def make_event(text: str, partial_event: bool) -> SimpleNamespace:
+            return SimpleNamespace(
+                author="schedule_agent",
+                partial=partial_event,
+                content=SimpleNamespace(
+                    parts=[
+                        SimpleNamespace(text=text, function_call=None),
+                    ],
+                ),
+                get_function_calls=lambda: [],
+            )
+
+        runner = FakeRunner(
+            [make_event(partial, True), make_event(complete, False)]
+        )
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            database = Path(temporary_directory) / "review_tickets.db"
+            with (
+                patch.object(academic_agent, "runner", runner),
+                patch.object(review_tickets, "TICKET_DB_PATH", database),
+            ):
+                async def collect_stream() -> list[dict[str, str]]:
+                    return [
+                        event
+                        async for event in academic_agent.stream_agent(
+                            question,
+                            "student",
+                            "session",
+                        )
+                    ]
+
+                events = asyncio.run(collect_stream())
+                tickets = review_tickets.list_tickets()
+
+        deltas = [event["text"] for event in events if event["type"] == "delta"]
+        self.assertEqual(len(deltas), 1)
+        self.assertIn("forwarded your question", deltas[0])
+        self.assertNotIn(partial, deltas[0])
+        self.assertEqual(len(tickets), 1)
 
 
 if __name__ == "__main__":

@@ -363,6 +363,9 @@ All `/admin/*` HTTP endpoints require `Authorization: Bearer <ADMIN_API_TOKEN>`.
 - Automatic escalation covers retrieval abstentions and conflicts identified
   by an agent; it does not detect every unsupported statement the model might
   produce when it uses no retrieval.
+- Explicit "cannot verify / unavailable" responses from the schedule and policy
+  specialists are converted to durable review tickets by the agent runner as a
+  fallback if the model neglects to call the review tool.
 - Ticket data currently has no automatic retention or deletion controls.
 - Rate limiting and production deployment configuration are not implemented.
 

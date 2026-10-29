@@ -1,3 +1,4 @@
+import re
 from collections.abc import AsyncIterator
 from pathlib import Path
 
@@ -11,7 +12,10 @@ from agents.email_agent import email_agent
 from agents.model_config import create_ollama_model
 from agents.policy_agent import policy_agent
 from agents.schedule_agent import schedule_agent
-from agents.retrieval import request_human_review, retrieve_academic_evidence
+from agents.retrieval import (
+    request_human_review,
+    retrieve_academic_evidence,
+)
 
 root_agent = Agent(
     model=create_ollama_model(),
@@ -64,6 +68,40 @@ runner = Runner(
     session_service=SqliteSessionService(str(SESSION_DB_PATH)),
 )
 
+UNVERIFIED_RESPONSE_RE = re.compile(
+    r"\b(?:"
+    r"do not have access|don't have access|"
+    r"recommend you ask|you should ask|ask this question to|"
+    r"cannot (?:verify|answer|tell|find|determine)|can't (?:verify|answer|tell|find|determine)|"
+    r"could not (?:verify|find|determine)|couldn't (?:verify|find|determine)|"
+    r"not (?:available|provided|specified|included|in the (?:available )?records)|"
+    r"no (?:relevant )?(?:information|data|record|source)|"
+    r"unable to (?:verify|answer|find|determine)"
+    r")\b",
+    re.IGNORECASE,
+)
+SPECIALIST_AUTHORS = {"schedule_agent", "policy_agent"}
+
+
+def _ensure_review_ticket(
+    question: str,
+    response: str,
+    author: str,
+) -> str:
+    """Escalate explicit specialist abstentions when the model skipped the tool."""
+    if author not in SPECIALIST_AUTHORS or not UNVERIFIED_RESPONSE_RE.search(response):
+        return response
+    ticket = request_human_review(
+        question=question,
+        reason="The specialist could not verify the requested information from available academic records.",
+        evidence_summary=f"Unverified specialist response: {response[:1470]}",
+    )
+    return (
+        "I could not verify this from the available academic records, so I "
+        "have forwarded your question to an administrator for review.\n\n"
+        f"Review ticket ID: {ticket['ticket_id']}"
+    )
+
 
 async def run_agent(message: str, user_id: str, session_id: str) -> str:
     session = await runner.session_service.get_session(
@@ -79,6 +117,7 @@ async def run_agent(message: str, user_id: str, session_id: str) -> str:
         )
 
     response_text = ""
+    response_author = ""
     async for event in runner.run_async(
         user_id=user_id,
         session_id=session_id,
@@ -93,11 +132,12 @@ async def run_agent(message: str, user_id: str, session_id: str) -> str:
             )
             if event_text:
                 response_text = event_text
+                response_author = event.author
 
     if not response_text:
         raise RuntimeError("The agent completed without returning a text response.")
 
-    return response_text
+    return _ensure_review_ticket(message, response_text, response_author)
 
 
 async def stream_agent(
@@ -138,7 +178,8 @@ async def stream_agent(
                     streamed_text[event.author] = (
                         streamed_text.get(event.author, "") + delta
                     )
-                    yield {"type": "delta", "text": delta}
+                    if event.author not in SPECIALIST_AUTHORS:
+                        yield {"type": "delta", "text": delta}
             continue
 
         for function_call in event.get_function_calls():
@@ -168,8 +209,20 @@ async def stream_agent(
             )
             previous_text = streamed_text.pop(event.author, "")
             if final_text.startswith(previous_text):
+                complete_text = final_text
+            else:
+                complete_text = previous_text or final_text
+            if event.author in SPECIALIST_AUTHORS:
+                complete_text = _ensure_review_ticket(
+                    message,
+                    complete_text,
+                    event.author,
+                )
+                if complete_text:
+                    yield {"type": "delta", "text": complete_text}
+            elif final_text.startswith(previous_text):
                 final_text = final_text[len(previous_text) :]
-            elif previous_text:
-                final_text = ""
-            if final_text:
+                if final_text:
+                    yield {"type": "delta", "text": final_text}
+            elif not previous_text and final_text:
                 yield {"type": "delta", "text": final_text}
