@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from google.adk.agents import Agent
-from google.adk.runners import InMemoryRunner
+from google.adk.runners import Runner
+from google.adk.sessions.sqlite_session_service import SqliteSessionService
 from google.genai import types
 
 from agents.email_agent import email_agent
@@ -34,7 +37,15 @@ root_agent = Agent(
     tools=[retrieve_academic_evidence]
 )
 
-runner = InMemoryRunner(root_agent)
+ROOT = Path(__file__).resolve().parents[1]
+SESSION_DB_PATH = ROOT / ".local" / "agent_sessions.db"
+SESSION_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+runner = Runner(
+    agent=root_agent,
+    app_name="academic_helpdesk_agent",
+    session_service=SqliteSessionService(str(SESSION_DB_PATH)),
+)
 
 
 async def run_agent(message: str, user_id: str, session_id: str) -> str:

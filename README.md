@@ -35,6 +35,8 @@ indexes academic PDFs, Markdown files, and CSVs in a persistent Chroma database.
   responses.
 - Local-development CORS access for the frontend at `localhost:3000` and
   `127.0.0.1:3000`.
+- ADK conversation history is saved in a local SQLite database and reused for
+  follow-up turns in the same browser tab.
 
 ### Agent workflow
 
@@ -90,9 +92,18 @@ data/ ──> scripts/ingest_pdfs.py ──> ChromaDB (chroma_db/)
                                       └── Retrieval integration: planned
 ```
 
-The API currently stores conversation sessions in memory. The API accepts a
-`session_id` for continuing a conversation, but the current frontend sends only
-the message and does not retain the returned session ID.
+The frontend keeps the active `session_id` in tab-scoped `sessionStorage` and
+sends it with every turn. ADK stores the associated conversation events in
+`.local/agent_sessions.db`, so history survives API process restarts. The
+**New conversation** button creates a fresh session. The transcript UI itself
+does not restore prior messages after a page refresh, even though the model can
+still use the stored session context.
+
+This is conversation history, not permanent learned memory: the model does not
+learn facts from one session for use in unrelated sessions. Session data has no
+automatic expiry or deletion UI. The local prototype also has no
+authentication, so it should not be exposed publicly with sensitive
+conversations without access controls and a data-retention policy.
 
 ## Requirements
 
@@ -244,6 +255,7 @@ returned as HTTP 502 responses.
 │   ├── model_config.py     # Shared Ollama/LiteLLM configuration
 │   ├── policy_agent.py     # Policy specialist
 │   └── schedule_agent.py   # Scheduling specialist
+├── .local/                 # Git-ignored SQLite conversation history
 ├── data/                   # Source PDFs, Markdown, and CSV files
 ├── frontend/
 │   ├── app/                # Next.js UI and styles
@@ -259,10 +271,10 @@ returned as HTTP 502 responses.
 
 - Chroma ingestion and chat are not connected yet; responses are not grounded
   in indexed documents and do not cite sources.
-- Conversation data lives in an in-memory ADK session service and is lost when
-  the API process restarts.
-- Although the API supports a user and session ID, the current frontend does
-  not persist or send them between requests.
+- The transcript display is not restored after a page refresh, though ADK
+  retains the session context while the tab's session ID is available.
+- Stored conversation sessions do not yet have automatic expiry, deletion
+  controls, or authenticated per-user access.
 - The PDF parser extracts embedded text only; scanned documents need OCR.
 - CORS is configured for local development origins. A deployed frontend needs
   its origin configured explicitly.
@@ -277,10 +289,8 @@ These are planned areas of work, not features currently delivered:
   augmented generation; see the [RAG implementation guide](./docs/RAG_IMPLEMENTATION_GUIDE.md)).
 - [ ] Include source filenames and PDF page numbers in answers; add citations
   and a way to inspect supporting passages.
-- [ ] Preserve the API's returned `user_id` and `session_id` in the frontend so
-  follow-up turns continue the same conversation.
-- [ ] Replace in-memory session storage with durable storage and add
-  conversation history.
+- [ ] Restore and display prior messages when resuming an existing session.
+- [ ] Add session deletion/retention controls and authenticated user identity.
 - [ ] Add OCR support for scanned PDFs and improve parsing of complex tables.
 - [ ] Make ingestion incremental, remove stale chunks after source changes,
   and report per-file indexing results.
