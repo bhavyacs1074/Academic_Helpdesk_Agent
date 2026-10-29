@@ -20,6 +20,7 @@ indexes academic PDFs, Markdown files, and CSVs in a persistent Chroma database.
 - [Project structure](#project-structure)
 - [Current limitations](#current-limitations)
 - [Roadmap](#roadmap)
+- [RAG implementation guide](#rag-implementation-guide)
 
 ## Features
 
@@ -273,7 +274,7 @@ returned as HTTP 502 responses.
 These are planned areas of work, not features currently delivered:
 
 - [ ] Connect Chroma similarity search to the agent workflow (retrieval-
-  augmented generation).
+  augmented generation; see the [RAG implementation guide](./docs/RAG_IMPLEMENTATION_GUIDE.md)).
 - [ ] Include source filenames and PDF page numbers in answers; add citations
   and a way to inspect supporting passages.
 - [ ] Preserve the API's returned `user_id` and `session_id` in the frontend so
@@ -291,3 +292,10 @@ These are planned areas of work, not features currently delivered:
 ## License
 
 See [`LICENSE`](./LICENSE).
+
+## RAG implementation guide
+
+For a step-by-step plan to connect Chroma retrieval to ADK agent tools, see the
+[RAG implementation guide](./docs/RAG_IMPLEMENTATION_GUIDE.md). It documents
+the current collection and metadata, proposes a retriever function, explains
+how to expose it to the relevant agents, and includes a testing checklist.

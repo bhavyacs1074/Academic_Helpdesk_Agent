@@ -3,23 +3,22 @@ import hashlib
 import logging
 from pathlib import Path
 
-import chromadb
 from pypdf import PdfReader
 from pypdf.errors import PdfReadError
+
+if __package__:
+    from scripts.rag import DB_DIR, EMBEDDING_MODEL, embed_texts, get_collection
+else:
+    from rag import DB_DIR, EMBEDDING_MODEL, embed_texts, get_collection
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
-PDF_DIR = ROOT / "data" 
-DB_DIR = ROOT / "chroma_db"
+PDF_DIR = ROOT / "data"
 BATCH_SIZE = 100
 
-client = chromadb.PersistentClient(path=str(DB_DIR))
-collection = client.get_or_create_collection(
-    "academic_documents",
-    metadata={"description": "Academic documents for student assistance."},
-)
+collection = get_collection(persist_dir=DB_DIR, model=EMBEDDING_MODEL)
 
 
 def chunks(text: str, size: int = 250, overlap: int = 50) -> list[str]:
@@ -69,7 +68,13 @@ def main() -> None:
     def save_batch() -> None:
         if not ids:
             return
-        collection.upsert(ids=ids, documents=documents, metadatas=metadatas)
+        embeddings = embed_texts(documents, model=EMBEDDING_MODEL)
+        collection.upsert(
+            ids=ids,
+            documents=documents,
+            embeddings=embeddings,
+            metadatas=metadatas,
+        )
         ids.clear()
         documents.clear()
         metadatas.clear()

@@ -6,6 +6,7 @@ from agents.email_agent import email_agent
 from agents.model_config import create_ollama_model
 from agents.policy_agent import policy_agent
 from agents.schedule_agent import schedule_agent
+from agents.retrieval import retrieve_academic_evidence
 
 root_agent = Agent(
     model=create_ollama_model(),
@@ -17,11 +18,13 @@ root_agent = Agent(
         "course planning, schedules, or time management; and email_agent for "
         "drafting, editing, or replying to academic emails. For requests that "
         "need more than one of these specialties, consult each relevant agent. "
+        "For retrieving information  use the retrieval tool to fetch the requiried policies and regulations"
         "Answer general academic questions yourself. Do not invent institution-"
         "specific policies; ask the student for their institution when needed."
-        "Do not provide anything outside the scope of the academic regulations , policies and the subagents not even math queries. Respond with I am sorry but I cannot provide that information."
+        "Do not respond to general or unrelated queries. Respond with I am sorry but I cannot provide that information."
     ),
     sub_agents=[policy_agent, schedule_agent, email_agent],
+    tools=[retrieve_academic_evidence]
 )
 
 runner = InMemoryRunner(root_agent)

@@ -11,7 +11,7 @@ import requests
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DB_DIR = Path(os.getenv("ACADEMIC_CHROMA_DIR", ROOT / "artifacts" / "chroma_db"))
+DB_DIR = Path(os.getenv("ACADEMIC_CHROMA_DIR", ROOT / "chroma_db"))
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434").rstrip("/")
 EMBEDDING_MODEL = os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
 BATCH_SIZE = 32
