@@ -33,6 +33,8 @@ indexes academic PDFs, Markdown files, and CSVs in a persistent Chroma database.
 - Message composer with Enter-to-send and Shift+Enter for a new line.
 - FastAPI `POST /chat` endpoint with input validation and explicit error
   responses.
+- FastAPI `POST /chat/stream` endpoint streams answer text and safe progress
+  statuses to the web UI using Server-Sent Events.
 - Local-development CORS access for the frontend at `localhost:3000` and
   `127.0.0.1:3000`.
 - ADK conversation history is saved in a local SQLite database and reused for
@@ -244,6 +246,13 @@ Successful response:
 
 Invalid input receives a validation error. Agent/model processing failures are
 returned as HTTP 502 responses.
+
+### `POST /chat/stream`
+
+Accepts the same JSON body as `/chat`, and returns a Server-Sent Events stream
+with `status`, `delta`, `done`, and `error` events. The frontend displays answer
+text as it arrives and shows safe progress updates such as document search.
+Private model reasoning is not sent to clients.
 
 ## Project structure
 

@@ -5,8 +5,8 @@ import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp, BookOpen, CalendarDays, FileText, Menu, PanelLeftClose, Plus, ShieldCheck, Sparkles } from "lucide-react";
 
-type Message = { id: number; role: "user" | "assistant"; content: string };
-type AssistantReply = { response: string; session_id: string };
+type Message = { id: string; role: "user" | "assistant"; content: string };
+type StreamResult = { response: string; sessionId: string };
 
 const SESSION_STORAGE_KEY = "academic-helpdesk-session-id";
 
@@ -16,33 +16,83 @@ const suggestions = [
   { icon: FileText, title: "Email assistant", text: "Draft a sick-leave email to my professor.", color: "pink" },
 ];
 
-async function requestAssistantResponse(
+async function streamAssistantResponse(
   question: string,
   sessionId: string,
-): Promise<AssistantReply | null> {
-  try {
-    const response = await fetch(process.env.NEXT_PUBLIC_CHAT_API_URL || "/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: question, session_id: sessionId }),
-    });
-    if (!response.ok) return null;
-    const data: unknown = await response.json();
-    if (!data || typeof data !== "object") return null;
-    const result = data as Record<string, unknown>;
-    if (
-      typeof result.response !== "string" ||
-      !result.response.trim() ||
-      typeof result.session_id !== "string" ||
-      !result.session_id.trim()
-    ) return null;
-    return {
-      response: result.response.trim(),
-      session_id: result.session_id,
-    };
-  } catch {
-    return null;
+  onText: (text: string) => void,
+  onStatus: (message: string) => void,
+): Promise<StreamResult> {
+  const chatUrl = process.env.NEXT_PUBLIC_CHAT_API_URL || "/api/chat";
+  const response = await fetch(`${chatUrl.replace(/\/$/, "")}/stream`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: question, session_id: sessionId }),
+    signal: AbortSignal.timeout(180_000),
+  });
+  if (!response.ok) {
+    throw new Error(`The chat service returned HTTP ${response.status}.`);
   }
+  if (!response.body) {
+    throw new Error("The chat service did not provide a response stream.");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let streamedResponse = "";
+  let returnedSessionId = "";
+  let completed = false;
+
+  function processFrame(frame: string) {
+    let eventName = "message";
+    const dataLines: string[] = [];
+    for (const line of frame.replace(/\r/g, "").split("\n")) {
+      if (line.startsWith("event:")) eventName = line.slice(6).trim();
+      if (line.startsWith("data:")) dataLines.push(line.slice(5).trimStart());
+    }
+    if (dataLines.length === 0) return;
+
+    const payload: unknown = JSON.parse(dataLines.join("\n"));
+    if (!payload || typeof payload !== "object") {
+      throw new Error("The chat service sent an invalid stream event.");
+    }
+    const values = payload as Record<string, unknown>;
+    if (eventName === "status" && typeof values.message === "string") {
+      onStatus(values.message);
+    } else if (eventName === "delta" && typeof values.text === "string") {
+      streamedResponse += values.text;
+      onText(values.text);
+    } else if (eventName === "done" && typeof values.session_id === "string") {
+      returnedSessionId = values.session_id;
+      completed = true;
+    } else if (eventName === "error") {
+      throw new Error(
+        typeof values.message === "string"
+          ? values.message
+          : "The assistant could not complete this request.",
+      );
+    }
+  }
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (value) buffer += decoder.decode(value, { stream: !done });
+    if (done) buffer += decoder.decode();
+
+    let frameBoundary = buffer.indexOf("\n\n");
+    while (frameBoundary !== -1) {
+      processFrame(buffer.slice(0, frameBoundary));
+      buffer = buffer.slice(frameBoundary + 2);
+      frameBoundary = buffer.indexOf("\n\n");
+    }
+    if (done) break;
+  }
+
+  if (buffer.trim()) processFrame(buffer);
+  if (!completed || !returnedSessionId) {
+    throw new Error("The assistant stream ended before the request completed.");
+  }
+  return { response: streamedResponse, sessionId: returnedSessionId };
 }
 
 function ChatbotAnimation() {
@@ -62,6 +112,7 @@ export default function Home() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -84,23 +135,61 @@ export default function Home() {
       window.crypto.randomUUID();
     window.sessionStorage.setItem(SESSION_STORAGE_KEY, activeSessionId);
     setSessionId(activeSessionId);
-    setMessages((previous) => [...previous, { id: Date.now(), role: "user", content: question }]);
-    setInput("");
-    setLoading(true);
-    const answer = await requestAssistantResponse(question, activeSessionId);
-    if (answer) {
-      window.sessionStorage.setItem(SESSION_STORAGE_KEY, answer.session_id);
-      setSessionId(answer.session_id);
-    }
     setMessages((previous) => [
       ...previous,
-      {
-        id: Date.now() + 1,
-        role: "assistant",
-        content: answer?.response ?? "I couldn't respond to this query right now. Please try again later.",
-      },
+      { id: window.crypto.randomUUID(), role: "user", content: question },
     ]);
-    setLoading(false);
+    setInput("");
+    setLoading(true);
+    setProgress("Starting your request...");
+    const assistantId = window.crypto.randomUUID();
+    try {
+      const answer = await streamAssistantResponse(
+        question,
+        activeSessionId,
+        (text) => {
+          setMessages((previous) => {
+            const existing = previous.some((message) => message.id === assistantId);
+            return existing
+              ? previous.map((message) =>
+                  message.id === assistantId
+                    ? { ...message, content: message.content + text }
+                    : message,
+                )
+              : [...previous, { id: assistantId, role: "assistant", content: text }];
+          });
+        },
+        setProgress,
+      );
+      window.sessionStorage.setItem(SESSION_STORAGE_KEY, answer.sessionId);
+      setSessionId(answer.sessionId);
+      if (!answer.response) {
+        setMessages((previous) => [
+          ...previous,
+          {
+            id: assistantId,
+            role: "assistant",
+            content: "The assistant completed without returning a text response.",
+          },
+        ]);
+      }
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "The assistant request failed.";
+      setMessages((previous) => {
+        const existing = previous.some((item) => item.id === assistantId);
+        return existing
+          ? previous.map((item) =>
+              item.id === assistantId
+                ? { ...item, content: `${item.content}\n\n${message}` }
+                : item,
+            )
+          : [...previous, { id: assistantId, role: "assistant", content: message }];
+      });
+    } finally {
+      setLoading(false);
+      setProgress("");
+    }
   }
 
   return (
@@ -121,7 +210,7 @@ export default function Home() {
         <header className="topbar"><div className="topbar-left"><button className="icon-button mobile-menu" aria-label="Open menu" onClick={() => setMobileSidebarOpen(true)}><Menu size={20} /></button><div className="breadcrumb"><strong>Academic Chatbot</strong></div></div></header>
         <div className="chat-scroll-area">
           <AnimatePresence mode="wait">
-            {messages.length === 0 ? <motion.div key="welcome" className="welcome-screen" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.35 }}><h1 className="welcome-title">Academic Chatbot</h1><p className="welcome-description">Ask questions about courses, exams, academic rules, and more.</p><div className="suggestion-grid">{suggestions.map((item, index) => { const Icon = item.icon; return <motion.button key={item.title} className="suggestion-card" onClick={() => void sendMessage(item.text)} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 + index * 0.09, duration: 0.35 }} whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.98 }}><div className={`suggestion-icon ${item.color}`}><Icon size={20} /></div><div className="suggestion-copy"><strong>{item.title}</strong><span>{item.text}</span></div><span className="suggestion-arrow">&rarr;</span></motion.button>; })}</div></motion.div> : <motion.div key="conversation" className="conversation" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{messages.map((message, index) => <motion.div key={message.id} className={`message-row ${message.role === "user" ? "user-row" : "assistant-row"}`} initial={{ opacity: 0, y: 12, scale: 0.99 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.25, delay: index === messages.length - 1 ? 0 : 0.02 }}>{message.role === "assistant" && <div className="assistant-avatar"><ChatbotAnimation /></div>}<div className="message-content">{message.role === "assistant" && <div className="message-author">Academic Chatbot</div>}<div className={`message-bubble ${message.role === "user" ? "user-bubble" : "assistant-bubble"}`}>{message.content}</div></div></motion.div>)}{loading && <motion.div className="message-row assistant-row" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><div className="assistant-avatar"><ChatbotAnimation /></div><div className="typing-bubble"><span className="typing-label">Replying</span></div></motion.div>}</motion.div>}
+            {messages.length === 0 ? <motion.div key="welcome" className="welcome-screen" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.35 }}><h1 className="welcome-title">Academic Chatbot</h1><p className="welcome-description">Ask questions about courses, exams, academic rules, and more.</p><div className="suggestion-grid">{suggestions.map((item, index) => { const Icon = item.icon; return <motion.button key={item.title} className="suggestion-card" onClick={() => void sendMessage(item.text)} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 + index * 0.09, duration: 0.35 }} whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.98 }}><div className={`suggestion-icon ${item.color}`}><Icon size={20} /></div><div className="suggestion-copy"><strong>{item.title}</strong><span>{item.text}</span></div><span className="suggestion-arrow">&rarr;</span></motion.button>; })}</div></motion.div> : <motion.div key="conversation" className="conversation" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{messages.map((message, index) => <motion.div key={message.id} className={`message-row ${message.role === "user" ? "user-row" : "assistant-row"}`} initial={{ opacity: 0, y: 12, scale: 0.99 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.25, delay: index === messages.length - 1 ? 0 : 0.02 }}>{message.role === "assistant" && <div className="assistant-avatar"><ChatbotAnimation /></div>}<div className="message-content">{message.role === "assistant" && <div className="message-author">Academic Chatbot</div>}<div className={`message-bubble ${message.role === "user" ? "user-bubble" : "assistant-bubble"}`}>{message.content}</div></div></motion.div>)}{loading && <motion.div className="message-row assistant-row" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><div className="assistant-avatar"><ChatbotAnimation /></div><div className="typing-bubble"><span className="typing-label">{progress || "Replying"}</span></div></motion.div>}</motion.div>}
           </AnimatePresence>
         </div>
         <div className="composer-area"><form className="composer" onSubmit={(event) => { event.preventDefault(); void sendMessage(); }}><textarea rows={1} value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendMessage(); } }} placeholder="Ask about courses, exams, or academic rules..." aria-label="Your message" disabled={loading} /><div className="composer-footer"><div className="composer-hint"><Sparkles size={14} /><span>Academic answers, made simple</span></div><motion.button type="submit" className="send-button" disabled={!input.trim() || loading} aria-label="Send message" whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.92 }}><ArrowUp size={19} /></motion.button></div></form><p className="disclaimer">Responses appear here when the academic service is connected.</p></div>

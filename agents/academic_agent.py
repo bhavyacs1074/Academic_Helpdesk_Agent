@@ -1,6 +1,8 @@
+from collections.abc import AsyncIterator
 from pathlib import Path
 
 from google.adk.agents import Agent
+from google.adk.agents.run_config import RunConfig, StreamingMode
 from google.adk.runners import Runner
 from google.adk.sessions.sqlite_session_service import SqliteSessionService
 from google.genai import types
@@ -81,3 +83,78 @@ async def run_agent(message: str, user_id: str, session_id: str) -> str:
         raise RuntimeError("The agent completed without returning a text response.")
 
     return response_text
+
+
+async def stream_agent(
+    message: str,
+    user_id: str,
+    session_id: str,
+) -> AsyncIterator[dict[str, str]]:
+    session = await runner.session_service.get_session(
+        app_name=runner.app_name,
+        user_id=user_id,
+        session_id=session_id,
+    )
+    if session is None:
+        await runner.session_service.create_session(
+            app_name=runner.app_name,
+            user_id=user_id,
+            session_id=session_id,
+        )
+
+    streamed_text: dict[str, str] = {}
+    async for event in runner.run_async(
+        user_id=user_id,
+        session_id=session_id,
+        new_message=types.Content(
+            role="user",
+            parts=[types.Part(text=message)],
+        ),
+        run_config=RunConfig(streaming_mode=StreamingMode.SSE),
+    ):
+        if event.partial:
+            if event.content and event.content.parts:
+                delta = "".join(
+                    part.text or ""
+                    for part in event.content.parts
+                    if part.text and not part.function_call
+                )
+                if delta:
+                    streamed_text[event.author] = (
+                        streamed_text.get(event.author, "") + delta
+                    )
+                    yield {"type": "delta", "text": delta}
+            continue
+
+        for function_call in event.get_function_calls():
+            if function_call.name == "retrieve_academic_evidence":
+                yield {
+                    "type": "status",
+                    "message": "Searching academic documents...",
+                }
+            elif function_call.name == "transfer_to_agent":
+                agent_name = (function_call.args or {}).get("agent_name")
+                status_by_agent = {
+                    "schedule_agent": "Checking course and schedule details...",
+                    "policy_agent": "Checking academic policies...",
+                    "email_agent": "Preparing email assistance...",
+                }
+                if isinstance(agent_name, str) and agent_name in status_by_agent:
+                    yield {
+                        "type": "status",
+                        "message": status_by_agent[agent_name],
+                    }
+
+        if event.content and event.content.parts:
+            final_text = "".join(
+                part.text or ""
+                for part in event.content.parts
+                if part.text and not part.function_call
+            )
+            previous_text = streamed_text.pop(event.author, "")
+            if final_text.startswith(previous_text):
+                final_text = final_text[len(previous_text) :]
+            elif previous_text:
+                final_text = ""
+            if final_text:
+                yield {"type": "delta", "text": final_text}

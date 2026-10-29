@@ -1,3 +1,4 @@
+import json
 import logging
 from uuid import uuid4
 
@@ -5,8 +6,9 @@ import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
+from starlette.responses import StreamingResponse
 
-from agents.academic_agent import run_agent
+from agents.academic_agent import run_agent, stream_agent
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -59,6 +61,43 @@ async def chat(request: ChatRequest) -> dict[str, str]:
         "user_id": request.user_id,
         "session_id": session_id,
     }
+
+
+@app.post("/chat/stream")
+async def chat_stream(request: ChatRequest) -> StreamingResponse:
+    session_id = request.session_id or str(uuid4())
+
+    async def events():
+        yield _sse_event("status", {"message": "Starting your request..."})
+        try:
+            async for event in stream_agent(
+                message=request.message,
+                user_id=request.user_id,
+                session_id=session_id,
+            ):
+                yield _sse_event(event["type"], event)
+        except Exception:
+            logger.exception("Streaming agent request failed")
+            yield _sse_event(
+                "error",
+                {"message": "The assistant could not complete this request."},
+            )
+        else:
+            yield _sse_event("done", {"session_id": session_id})
+
+    return StreamingResponse(
+        events(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+def _sse_event(event_name: str, payload: dict[str, str]) -> str:
+    """Encode a JSON payload as a Server-Sent Event."""
+    return f"event: {event_name}\ndata: {json.dumps(payload)}\n\n"
 
 
 if __name__ == "__main__":
