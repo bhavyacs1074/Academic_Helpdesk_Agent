@@ -1,0 +1,34 @@
+S.No,Course code,Course name,L-T-P,Instructor,Category (PC/PE/IC),Slot,Remarks
+1,MAL2170,"Probability, Statistics and Stochastic Processes",3-1-2,Subhash Bhagat,PC,D,UG III Sem (Transition plan)
+2,CSL2XXX,Data Structures and Algorithms,3-0-0,DipSankar Banerjee,PC,C,
+,,Introduction to Machine Learning,3-0-2,Divya Saxena and Hardik Jain,PC,,
+3,BBL2010,Biochemistry,3-0-0,Neha Jain,PC,E,
+4,BBL2XXX,Bioinformatics,3-0-0,Sucharita Dey,PC,B,
+5,BBP2XXX,Biochemistry and Bioinformatics Lab,0-0-4,Neha Jain and Sucharita Dey,PC,M,
+6,BBL3100,Computational and Systems Biology,3-0-2,Sucharita Dey,PC,C,UG V Sem (Existing curriculum)
+7,BBL3110,The Human Machine for Engineers: Quantitative Physiology,3-0-0,Sushmita Jha,PC,A,
+8,BBL3120,Genetics and Gene Manipulation,3-0-2,Mitali Mukerji,PC,D,
+9,EEL3050,Biosensors (offered by Electronics Dept),3-0-2,Ajay Agarwal,PC,B,
+10,BBL4040,Anticancer Drug Development,3-0-0,Dinesh Kumar Ahirwar,PE,E,
+11,BBL4XXX,Microbes in food and sustainable agriculture,3-0-0,Balakumaran Chandrasekhar ,PE,U,
+12,BBL4210,Viral Infection and Antiviral Drug Development,3-0-0,Sudipta Bhattacharya,PE,E,
+13,BBD7030,B.Tech Project I,0-0-6,Ayan Sadhukhan,,T1,UG VII Sem (Existing curriculum); PG I Sem
+14,BBL7450,Fundamentals of Neuroscience,3-0-0,Amit Kumar Mishra,PE,U,
+15,BBL7080,Plant Genetic Engineering and Functional Genomics,3-0-0,Ayan Sadhukhan,PE,N,
+16,BBL7390,Introduction to Chemical Biology,3-0-0,Surajit Ghosh,PE,E,
+17,BBL7380,Immunotechnology,3-0-0,Indranil Banerjee,PE,E,
+18,BBL7350,Bioenergy Systems,3-0-0,Meenu Chhabbra,PE,U,
+19,BBL7500,Biophysics,2-0-2,Sudipta Bhattacharya,PE,K,
+20,BBL7470,Theranostic Systems,3-0-0,Raviraj Vankayala,PE,K,
+21,BBL7580,Computational Genomics,3-0-0,Pankaj Yadav,PE,N,
+22,BBL7460,Synthetic Biology,3-0-0,Shankar Manoharan,PE,N,
+23,BBN1010,Design and Practical Experience,,Sucharita Dey,NG,NG3,NG courses
+24,BBN2020,Design and Practical Experience,,Sucharita Dey,NG,NG3,
+25,BBN3020,Design and Practical Experience,,Sucharita Dey,NG,NG3,
+26,OSN1010,Social Connect,0-0-2,"Priyanka Singh, Surajit Ghosh",NG,TBD,
+27,OAE1010,Engineering Design-I,0-0-2,"Indranil Banerjee, Balakumaran Chandrasekhar",NG,TBD,
+28,BBN2010,Introduction to Profession,,Shankar Manoharan,NG,TBD,
+29,BBL7620,Imaging Cell Biology,2-0-2,Priyanka Singh,PC,H,PG I Sem Compulsory courses
+30,BBL7640,Omics Technologies,2-0-2,Balakumaran Chandrasekhar and Shankar Manoharan,PC,F,
+31,BBT8990,Thesis,0-0-32,Indranil Banerjee,DT,T,
+32,BBT7040,M.Tech Thesis I,0-0-16,Sudipta Bhattacharya,MT,T1,

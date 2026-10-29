@@ -1,0 +1,40 @@
+Course Code,Course Name,L-T-P,Credits,Instructor(s),Slot,Lab Slot
+CIL2070,Hydraulics Engineering,3-1-0,4,Deepak Swami,B,-
+CIL2030,Mechanics of Solids,3-1-0,4,Sanhita Das,A,-
+CIL2060,Geoinformatics,3-0-0,3,Mayank Suman,E,-
+CIL2080,Building Materials and Construction Technology,3-0-0,3,Yogiraj Sargam,C,-
+CIP2010,Civil Engineering Laboratory - I,0-0-4,2,Anusha S. Basavaraj / Mayank Suman,-,M1
+CIL3010,Transportation Engineering,3-0-0,3,Bhupendra Singh,B,-
+CIL3020,Structural Analysis,3-0-2,4,Shuvajit Mukherjee / Susmita Panda,A,?
+CIL3030,Environmental Engineering,3-0-2,4,Monika Dubey / Trishikhi Raychoudhury,D,?
+CIL3040,Geotechnical Engineering,3-1-0,4,Sarath Chandra Reddy Nallala,C,-
+CIL3050,Construction Technology and Practices,3-0-2,4,Sreejith Krishnan / Bhupendra Singh,E,?
+CIL4010,Environmental Science,2-0-0,2,Amit Sharma / Debanjan Guha Roy,V,-
+CIL4350,Dynamics of Structures,3-0-0,3,Falak Vats,U,-
+CIL4360,Traffic System and ITS,3-0-0,3,Akshay Gupta,G,-
+CIL4390,Highway Geometric Design,3-0-0,3,Subham Jain,H,-
+CIL7660,Advanced Geotechnical Engineering,3-0-0,3,Pradeep Kumar Dammala,F,-
+CIL7690,Building Services,3-0-0,3,Anusha S. Basavaraj,I,-
+CIL4330,Thermal and Nuclear Power Infrastructure Engineering,3-0-0,3,Bhupendra Singh / Pradeep Kumar Dammala,J,-
+CIL4380,Ground Improvement Techniques,3-0-0,3,Sarath Chandra Reddy Nallala / Susmita Panda,I,-
+CIL7840,Mathematics for Civil Engineering,3-0-0,3,Sanhita Das / Shuvajit Mukherjee,I,-
+CIL7830,Advanced Solid and Fluid Mechanics,3-0-0,3,Shuvajit Mukherjee / Saran Aadhar,H,-
+CIL7870,Analysis of Bridge Structures,3-0-0,3,P Ravi Prakash / Amit Kumar Rathi,F,-
+CIL7850,Water Quality and Advanced Treatment Processes,3-0-0,3,Trishikhi Raychoudhury,G,-
+CIL7920,Advanced Hydrology,2-0-2,3,Saran Aadhar,J,?
+CIL7910,Advanced Concrete Technology,3-0-0,3,Sreejith Krishnan,K,-
+CIL7900,Mechanics of Geomaterials,3-0-0,3,Debanjan Guha Roy,J,-
+CIL7890,Groundwater Flow and Contaminant Transport Modeling,2-0-2,3,Deepak Swami,F,?
+CIL7860,Wind Turbine and Field Design ,3-0-0,3,Amit Kumar Rathi,G,-
+CIP7310,Environmental Engineering Lab.,1-0-4,3,Trishikhi Raychoudhury / Monika Dubey,L,"L2, L7"
+CIL7420,Traffic Flow Theory,3-0-0,3,Ranju Mohan,F,-
+CIL7520,Environmental Hydrology,3-0-2,4,Saran Aadhar,J,?
+CIN1010,Design/Practical Experience,0-0-4,2,Aali Pant,NG3,-
+CIN2030,Design/Practical Experience,0-0-4,2,Trishikhi Raychoudhury,NG3,-
+CIN3010,Design/Practical Experience,0-0-4,2,Tekcham Gishan Singh,NG3,-
+CID4010,BTech Project,0-0-6,3,Tekcham Gishan Singh,T,-
+CIT7010,MTech Thesis Part-1,0-0-16,16,Akshay Gupta,T,-
+CIT7020,MTech Thesis Part-2,0-0-16,16,Monika Dubey,T,-
+CIT8960,Thesis,0-0-16,16,Bhupendra Singh,T,-
+CIT8980,Thesis,0-0-6,6,Bhupendra Singh,T,-
+CIT8990,Thesis,0-0-12,12,Bhupendra Singh,T,-

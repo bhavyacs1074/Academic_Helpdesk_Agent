@@ -1,0 +1,43 @@
+S. No,Subject Code,Subject Name,L-T-P,Credit,Course Type,Offered For,Instructor Name,Slot
+1,MSL73060,Fundamentals of Marketing,3-0-0,3,PC,MBA Sem 1,Neha,F
+2,MSL73070,Business Economics-I,3-0-0,3,PC,MBA Sem 1,"Devi (1), Bhushan (1), Seema (1)",C
+3,MSL73080,Fundamentals in Accounting,3-0-0,3,PC,MBA Sem 1,Manisha Yadav,K
+4,MSL73090,Corporate Finance,3-0-0,3,PC,MBA Sem 1,Manisha Yadav,N
+5,MSL73300,Business Statistics,3-0-0,3,PC,MBA Sem 1,Bhargab,D
+6,MSL73310,Operations Research for Managers,3-0-0,3,PC,MBA Sem 1,Magesh Nagarajan,B
+7,MSL73320,Human Behavior and Organization Dynamics,3-0-0,3,PC,MBA Sem 1,Venkat Ram Reddy,E
+8,MSN7030,Business Communication,1-0-0,1,NG,MBA Sem 1/PhD,Deepak Saxena,F
+9,MSL73200,Quantitative Research Methods for Management,3-0-0,3,DC,PhD,Bhargab (1.5) Deepak Srivastav (1.5),I
+10,MSL73210,Qualitative Research Methods for Management,3-0-0,3,DC,PhD,Jitesh Mohnot,G
+11,MSL73220,Paradigms and Philosophies of Management Research,3-0-0,3,DC,PhD,"Jitesh Mohnot (2), Deepak Saxena (1)",H
+12,MSO8010,Research Proposal,0-0-16,8,DE,PhD,Venkat Ram Reddy,D1
+13,MSO8020,Research Proposal,0-0-16,8,DE,PhD,Venkat Ram Reddy,D2
+14,MSO8060,Research Proposal,0-0-32,16,DE,PhD,Venkat Ram Reddy,D3
+15,MST8010,Thesis,0-0-24,12,DE,PhD,Venkat Ram Reddy,T1
+16,MST8020,Thesis,0-0-24,12,DE,PhD,Venkat Ram Reddy,T1
+17,MST8050,Thesis,0-0-24,12,DE,PhD,Venkat Ram Reddy,T1
+18,MST8060,Thesis,0-0-24,12,DE,PhD,Venkat Ram Reddy,T1
+19,MST8030,Thesis,0-0-32,16,DE,PhD,Venkat Ram Reddy,T1
+20,MST8040,Thesis,0-0-32,16,DE,PhD,Venkat Ram Reddy,T1
+20,MST8080,Thesis,0-0-16,8,DT,PhD,Venkat Ram Reddy,T1
+21,MSL4010,Introduction to Business & Management,3-0-0,3,SC,Minor in Management,Deepak Saxena,U
+22,MSL73490,Nurturing and Managing Brands,3-0-0,3,PE,MBA Sem III,Manu Kanchan,I
+23,MSL73500,Financial Derivatives and Risk Managment,3-0-0,3,PE,MBA Sem III,Manisha Yadav,B
+24,MSL73510,Consumer Behaviour,3-0-0,3,PE,MBA Sem III,Anuj Pal Kapoor,A
+25,MSL73520,Human-AI Collaboration at Work,2-0-2,3,PE,MBA Sem III,Venkat Ram Reddy,J
+26,MSL73530,Project Management,3-0-0,3,PE,MBA Sem III,Monika Tanwar,C
+27,MSL73540,Big Data and Cloud Computing,3-0-0,3,PE,MBA Sem III,Aman Pathak,N
+28,MSL73550,Artificial Intelligence in Business,3-0-0,3,PE,MBA Sem III,"Bhargab Chattopadhyay (2), Aman Pathak (1)",U
+29,MSL73560,Business Storytelling with Data Visualization and Machine Learning,3-0-0,3,PE,MBA Sem III,Magesh Nagarajan,K
+30,MSL73570,B2B Marketing,3-0-0,3,PE,MBA Sem III,Neha,D
+31,MSL73580,Industry 5.0,3-0-0,3,PE,MBA Sem III,Deepak Srivastav,F
+32,MSL73590,Supply Chain Management,3-0-0,3,PE,MBA Sem III,Vinod Vijay Kumar,H
+33,MSL73600,Digital Platforms and Sharing Economy,3-0-0,3,PE,MBA Sem III,Bhushan Praveen Jangam,E
+34,MSL73610,Quality Management,3-0-0,3,PE,MBA Sem III,Monika Tanwar,E
+35,MSL73620,Introduction to FinTech,3-0-0,3,PE,MBA Sem III,Deepak Saxena and Bhushan ,G
+36,OAL7010,Innovation and IP Management,1-0-0,1,NG,Institute Courses,"Manu Kanchan, Deepak Saxena",NG 1
+37,OAN7010,Systems Engineering and Project Management,1-0-0,1,NG,Institute Courses,Vinod Vijay Kumar,NG
+38,MSL 7060,Marketing Management I,2-0-0,2,SC,Minor in Management,Manu Kanchan,K
+39,MSL71040,Financial Accounting and Reporting,2-0-0,2,SC,Minor in Management,Deepak Saxena,H
+40,MSP7030,Business Plan Phase I,0-0-8,4,SC,BS Entrepreneurship,Venkat Ram Reddy,N
+41,MSL7190,Entrepreneurial Experiences,0-0-2,2,SE,BS Entrepreneurship,Bharat Maheshvari (Coordinated by Deepak Saxena),S

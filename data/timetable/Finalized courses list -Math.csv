@@ -1,0 +1,55 @@
+Course Code,Course Name,Credits,Instructor Name,Slot,Remarks
+MAL1110,Mathematics I,3,Puneet Sharma,AN,B.Tech. 1st year Core
+MAL2170,"Probability, Statistics and Stochastic Processes",4,Subhash Bhagat,D,B.Tech. 2nd Year Core
+MAL2210,Scientific Computations,3,Parag Deshpande,A,B.Tech. 2nd Year Core
+MAL1070,Mathematics-I,4,Pradip Sasmal,CD,B.Sc.-B.ed First year Core
+MAL2110,Real Analysis,4,Kiran Meena,CA,B.Sc.-B.Ed 2nd Year Core
+MAL2120,Linear Algebra,4,Rajat Gupta,CB,B.Sc.-B.Ed 2nd Year Core
+MAL2160,Probability Theory,4,Gaurav Bhatnagar,CC,B.Sc.-B.Ed 2nd Year Core
+MAL3020,Graph Theory,4,Shaily Verma,CA,B.Sc.-B.Ed 3rd Year PE
+MAL3030,Introduction to Programming,4,Moumita Mondal,CB,B.Sc.-B.Ed 3rd Year PE
+MAL3040,Statistics,4,Brahadeesh Sankarnarayanan,CE,B.Sc.-B.Ed 3rd Year PE
+MAL3060,Complex Analysis,4,Abhishek Sarkar,CC,B.Sc.-B.Ed 3rd Year PE
+MAL6110,Linear Algebra,4,Kiran Meena,F,M.Sc. First Year Core
+MAL6120,Real Analysis,4,Sahil Gehlawat,G,M.Sc. First Year Core
+MAL6130,Ordinary Differential Equations,4,Anuj Kumar,K,M.Sc. First Year Core
+MAL 6140,Abstract Algebra,4,Kriti Goel,I,M.Sc. First Year Core
+MAL6150,Probability and Statistics,4,Brahadeesh Sankarnarayanan,H,M.Sc. First Year Core
+MAL7420,Statistical Models and Regression,3,Nil Kamal Hazra,J,M.Sc. 2nd Year PE
+MAL7450,Module Theory ,3,Kriti Goel,K,M.Sc. 2nd Year PE
+MAL7560,Optimization,3,Kuntal Som,G,M.Sc. 2nd Year PE
+MAL7320,Dynamical Systems ,3,Sukhendu Ghosh,H,M.Sc. 2nd Year PE
+MAL7490,Wavelet Analysis and Applications,3,Tuhina Mukherjee,I,M.Sc. 2nd Year PE
+MAD7040,Project-I,5,Kiran Meena,T,M.Sc. 2nd Year Project
+MAL6080,Topology ,3,Bimal Mandal,F,M.Sc. 2nd Year Core
+MAL7110,Foundations of Data Science,3,M Abu,F,M.Tech. First Year Core
+MAL7120,Data Analytics,3,Sukhendu Ghosh,V,M.Tech. First Year Core
+MAL7400,Computational Game theory,3,Puneet Sharma,J,M.Tech. First Year PE
+MAT7210,M.Tech Thesis-I                ,16,Sahil,           T,M.Tech. 2nd Year Thesis
+MAL7530,Mathematical Analysis,3,Kirankumar Hiremath,I,Ph.D Core
+MAL7520,Algebra,3,Dilpreet Kaur,J,Ph.D Core
+,,,,,
+MAT8020, Thesis,16,Subhas Bhagat,RP,Ph.D Thesis
+MAT8030, Thesis,16,Subhas Bhagat,RP,Ph.D Thesis
+MAT8990, Thesis,12,Subhas Bhagat,RP,Ph.D Thesis
+MAT8980, Thesis,6,Subhas Bhagat,RP,Ph.D Thesis
+,,,,,
+,,,,,
+,,,,,
+M.Tech DCS Executive ,,,,,
+,,,,,
+,,,,,
+MAD7060,M.Tech Project,5,Dr. Bimal Mandal,YT,"For Backlog Students, 2024 batch"
+MAL7070,Optimization for Data Science,2,Prof. Puneet Sharma,YP,"For Backlog Students, 2024 batch"
+MAL7060,Statistics for Data Science,2,Dr. Brahadeesh Sankarnarayanan,YQ,"For Backlog Students, 2024 batch"
+,,,,,
+,,,,,
+MAT7210,M.Tech Thesis-I		,16,Dr. Bimal Mandal,YT,M.Tech DCS Executive 2025 batch
+,,,,,
+,,,,,
+MAL7110,Foundation of Data Science,3,Prof. Ambesh Dexit,YQ,M.Tech DCS Executive 2026 batch (MC)
+MAL7120,Data Analytic,3,Dr. Sukhandu Ghosh,YS,M.Tech DCS Executive 2026 batch (MC)
+CSL7620,Machine Learning,3,Dr. Subhash Bhagat,YP,M.Tech DCS Executive 2026 batch (MC)
+LAN7010,Technical Communication,1,Dr. Tonisha Guin,YR2,M.Tech DCS Executive 2026 batch (NG)
+CSL7610,Artificial Intelligence,3,Dr. Deeksha Varshney,YO,M.Tech DCS Executive 2026 batch (ME)
+QCL7350,Quantum Inspired Optimization,3,Prof. Kiran R. Hiremath,P,M.Tech DCS Executive 2026 batch (ME)

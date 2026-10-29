@@ -1,0 +1,67 @@
+Course Code,Course Name,Credit,Instructor,Preferred slot,Offered for
+CYL4XX0,Organic Reactions and Mechanisms,3-0-0 (3),Koushambi Mitra,F,"MSc, Semester I"
+CYL4XX0,Physical Organic Chemistry,3-0-0 (3),Vivek Wakchaure,H,"MSc, Semester I"
+CYL4XX0,Main Group and Bioinorganic Chemistry,3-0-0 (3),Ramesh Metre,I,"MSc, Semester I"
+CYL4XX0,Coordination and Organometallic Chemistry,3-0-0 (3),Ravindra Raut,K,"MSc, Semester I"
+CYL4XX0,Numerical Methods and Group Theory,3-0-0 (3),Atul Kumar,G,"MSc, Semester I"
+CYL4XX0,Quantum Chemistry and Applications,3-0-0 (3),Manikandan Paranjothy,E,"MSc, Semester I"
+CYP4XX0,Organic and Inorganic Lab,0-0-6 (3),"Mayank Gupta, Amreen Kaur Bains",L4,"MSc, Semester I"
+,,,,,
+CYL7340,Frontiers in Organic Chemistry,3-0-0 (3),Sandip Murarka,I,"MSc, Semester III"
+CYL7450,Nanomaterials and Nanodevices,3-0-0 (3),Suresh Sarkar,K,"MSc, Semester III"
+CYL7420,Characterization Techniques in Inorganic Chemistry,3-0-0 (3),Subrata Chakraborty,J,"MSc, Semester III"
+CYL6370,Modern NMR methods for Chemists ,3-0-0 (3),Samanwita Pal,D,"MSc, Semester III"
+CYL7360,Spectroscopic Determination of Organic Compounds,3-0-0 (3),Rohan Erande,U,"MSc, Semester III"
+CYL7440,Stereochemistry of Organic Compounds,3-0-0 (3),Nirmal Kumar Rana,K,"MSc, Semester III"
+CYL7XX0,Advanced Spectroscopic Methods,3-0-0 (3),"Samanwita Pal(C), Dibyendu Kumar Sasmal, Rahul Gera",N,"MSc, Semester III"
+CYL6XX0,Chemistry of f-block elements,3-0-0 (3),Pragati Pandey,E,"MSc, Semester III"
+CYQ6010,Seminar ,0-0-1 (0.5),Amreen Kaur Bains,,"MSc, Semester III"
+CYP6050,Hands On-2,0-0-2 (1.5),Swati Jindal,L6,"MSc, Semester III"
+CYD6040,Major Project I,0-0-0-5,Vivek Wakchaure,T,"MSc, Semester III"
+,,,,,
+CYL1010,Chemistry Theory,3-0-0 (3),"Dibyendu Sasmal (C), Pragati Pandey, Swati Jindal",AK,BTech 1st year Semester I
+CYP1010,Chemistry Laboratory,0-0-2 (1),"Atul Kumar, Mayank Gupta, Vivek Wakchaure",M2,BTech 1st year Semester I
+,,,,,
+CYL2120,"Thermodynamics, Kinetics and Engineering Applications",3-0-0 (3),Ananya Debnath,F,BS Semester III
+CYL2130,Fundamental Organic Chemistry,3-0-0 (3),Hema Kuntrapakam,B,BS Semester III
+CYL2140,Quantum Chemistry and Applications,3-0-0 (3),Manikandan Paranjothy,E,BS Semester III
+CYL2030,Fundamental Inorganic Chemistry,3-0-0 (3),Pritam Mahawar,A,BS Semester III
+CYP2130,Organic Chemistry Lab,0-0-6 (3),Rohan Erande,M8,BS Semester III
+,,,,,
+CYL3010,Physical Organic Chemistry and Photochemistry,3-0-0 (3),Monika Gupta,A,BS Semester V
+CYL3020,Atomic and Molecular Structure,3-0-0 (3),"Milan Hazra, Rahul Gera",C,BS Semester V
+CYL3030,Coordination and Bioinorganic Chemistry,3-0-0 (3),Amreen Kaur Bains,D,BS Semester V
+CYP3010,Organic Chemistry Lab 2,0-0-3 (1.5),Shyam Kumar Banjare,M4,BS Semester V
+PHP3030,Applied computational Lab,0-0-3 (1.5),Milan Hazra,M5,BS Semester V
+,,,,,
+CYL4010,Structural Chemistry,3-0-0 (3),Mayank Gupta,B,BS Semester VII
+,,,,,
+CYL1020,General Chemistry I,3-0-2 (4),"Vivek Wakchaure (C), Pritam Mahawar, Dibyendu Sasmal",CK,BSC Bed Sem I
+,,,,,
+CYL2060,Basic Principles of Chemistry,3-0-2 (4),"Rahul Gera (C), Ravindra Raut, Koushambi Mitra",CC,BSC Bed Sem III
+CYL2070,Molecular Structure and Spectroscopy,3-0-2 (4),Samanwita Pal,CA,BSC Bed Sem III
+,,,,,
+CYL3XX0,Organic Reactions and Mechanisms,3-0-0 (3),Shyam Kumar Banjare,CK,"BSc-BEd, Semester V"
+CYL3XX0,Physical Organic Chemistry,3-0-0 (3),"Vivek Wakchaure, Nirmal Rana",CB,"BSc-BEd, Semester V"
+CYL3XX0,Main Group and Bioinorganic Chemistry,3-0-0 (3),"Ramesh Metre, Subrata",CE,"BSc-BEd, Semester V"
+CYL3XX0,Coordination and Organometallic Chemistry,3-0-0 (3),"Amreen, Ravindra Raut",CA,"BSc-BEd, Semester V"
+CYL3XX0,Numerical Methods and Group Theory,3-0-0 (3),Atul Kumar,CB,"BSc-BEd, Semester V"
+CYL3XX0,Quantum Chemistry and Applications,3-0-0 (3),Manikandan Paranjothy,CC,"BSc-BEd, Semester V"
+,,,,,
+CYL7010,Chemistry 1,3-0-0 (3),"Suresh Sarkar (C), Hema Kuntrapakam, Rahul Gera",F,"PhD, Semester I"
+CYL7020,Chemistry 2,3-0-0 (3),"Swati Jindal(C), Pragati Pandey, Milan Hazra",H,"PhD, Semester I"
+CYL7340,Frontiers in Organic Chemistry,3-0-0 (3),Sandip Murarka,I,"PhD, Semester I"
+CYL7360,Spectroscopic Determination of Organic Compounds,3-0-0 (3),Rohan Erande,U,"PhD, Semester I"
+CYL7420,Characterization Techniques in Inorganic Chemistry,3-0-0 (3),Subrata Chakraborty,J,"PhD, Semester I"
+CYL7XX0,Advanced Spectroscopic Methods,3-0-0 (3),"Samanwita Pal(C), Dibyendu Kumar Sasmal, Rahul Gera",N,"PhD, Semester I"
+,,,,,
+,,,,,
+CYN2020,Design Practical Experience,,,,
+CYN3020,Design Practical Experience,,,,
+CYN4020,Design Practical Experience,,,,
+,,,,,
+,,,,,
+,,,,,
+,,,,,
+CYO8960,Research proposal,0-0-20 (10),,,
+CYO8970,Research Proposal,0-0-24 (12),,T,

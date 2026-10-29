@@ -1,0 +1,46 @@
+Course Code,Course name,L-T-P,Credits,Instructor,Slot
+,Circuit Theory,3-0-0,3,Sandeep Yadav,A
+,Measurement and Instrumentation,3-0-0,3,Bharat Singh Rajpurohit,D
+,Signals and Systems,,4,Himanshu Kumar,B
+,,,,,
+EEL3010,Analog Circuits ,3-0-3,4.5,Arani,B
+EEL3020,Electrical Machines ,3-0-0,3,Gafoor,C
+EEL3030,Communication Systems ,3-0-0,3,Suraj,D
+EEL3040,Control Systems,3-0-3,4.5,Anoop,A
+,,,,,
+,,,,,
+EEL7080,Introduction to Cyber Physical Systems ,3-0-0,3,Niladri Sekhar Tripathy,F
+EEL7150,Embedded Systems Design ,3-0-0,3,Deepak Fulwani,K
+,,,,,
+,,,,,
+,,,,,
+,,,,,
+EEL7009,Applied Linear Algebra ,3-0-0,3,Rajendra Nagar,H
+EEL7010,Statistical Signal Analysis,3-0-0,3,Amit Bhardwaj,I
+EEL4330,Speech Processing,3-0-0,3,Manish Narwaria,E
+,,,,,
+,,,,,
+EEL7300,Computational Methods in Power System Analysis ,3-0-0,3,Vineeth,F
+EEL7700,Electric Drive Systems ,3-0-0,3,Nishant,G
+EEL71720,Power Electronic Converters ,3-0-0,3,Kunwar,H
+EEP7140,Integrated Power and Drives Laboratory ,0-0-2,1,Ravi Yadav,M6
+EEL7XX0,Power System Protection,,3,Bandi Ravi Kumar,J
+EEL7640,selected topics in distributed generation,,3,ravi yadav,K
+EEL4350,Microwave Engineering (400),,3,Manoj Gupta,E
+EEL7900,Physics and Modelling of MOS Transistors ,,3,Harshit,K
+EEL 3XXX,VLSI Design,,3,Arpit,K
+EEL7770,Formal Verification,,3,Binod Kumar,I
+EEL71570,Hradware Software Co-design,,3,Binod Kumar,J
+EEL7XX0,Renewable Energy Systems,,3,Kunwar,I
+EET8980,PhD Thesis,,,Niladri Sekhar Tripathy,T
+EET8990,PhD Thesis,,,Niladri Sekhar Tripathy,T
+,,,,,
+EET8970,PhD Thesis,,,Niladri Sekhar Tripathy,T
+EET7950,M.Tech Thesis Part 1,,,Bharat Singh Rajpurohit,T
+EEN2020,Design/Practical Experience,,,Bandi  Ravi,NG2
+EEN1010,Design/Practical Experience,,,Gafoor,NG2
+EEN3010,Design/Practical Experience,,,Himanshu Kumar,NG2
+EEL71560,Linear System Theory,,3,Saurav Kumar,I
+EEL7580,Introduction to Smart Grid,,3,Payal Vyankat Dahiwale,J
+EEN2010,Introduction to Profession,,1,Payal Vyankat Dahiwale,NG3
+EEL4370,Power System Operation and Control,,3,Vineeth,E

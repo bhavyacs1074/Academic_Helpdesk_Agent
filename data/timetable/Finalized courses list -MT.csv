@@ -1,0 +1,44 @@
+Course Code,Course Name,[L-T-P],Instructor,Co-Instructors,Slot,Remarks
+MTL2030,Numerical Methods for Materials Engineering,3-0-0,Amitava Banerjee,Appala Naidu,C,PC for UG 3rd Sem
+MTL2040,Materials Thermodynamics,3-0-0,Saurabh Nene,Abhay Gupta,B,PC for UG 3rd Sem
+MTL2010,Materials Science and Engineering,3-0-0,Abir Bhattacharyya,Abhay Gupta,K,PC for UG 3rd Sem
+MTL2050,Mechanics of Solids,[3-1-0],Abir Bhattacharyya,Anurag Sharma,D,PC for UG 3rd Sem
+MTP2030,Numerical Methods and Materials Engineering Lab,0-0-4,Sumeet Rajesh Khanna,Vikramsingh Thakur,"M7, M8",PC for UG 3rd Sem
+MTL3010,Electronic Materials,3-0-0,Pranay Ranjan,Ravi Prakash Srivastava,A,PC for UG 5th Sem
+MTL3020,Mechanical Behavior of Materials,3-0-0,Nitin Kumar Sharma,,C,PC for UG 5th Sem
+MTL3030,Phase Transformations,3-0-0,Sk Md Hasan,Abhay Gupta,D,PC for UG 5th Sem
+MTL3040,Materials Charaterization,3-0-0,Shipra Bajpai,Nitin Kumar Sharma,B,PC for UG 5th Sem
+MTP3010,Electronic Materials Lab,0-0-3,Ravi Prakash Srivastava,Devendra Singh Negi,M6,PC for UG 5th Sem
+MTP3020,Physical Metallurgy Lab,0-0-3,Jaiveer Singh,,M8,PC for UG 5th Sem
+MTP3030,Energy Materials Lab,0-0-3,Srijan Sengupta,,M2,PC for UG 5th Sem
+MTP3050,Materials Charaterization Lab,0-0-3,Debasmita Dwibedi,Nitin Kumar Sharma,M7,PC for UG 5th Sem
+MTD4010,BTech Project,0-0-6,Amitava Banerjee,,T,PP for UG 7th Sem
+MTL7110,Solidification of Metals and Alloys,3-0-0,Sk Md Hasan,,N,"ME for PG I Sem - Structural, PE for UG VIII Sem"
+MTL7470,Light Metals and alloys,3-0-0,Saurabh Nene,,J,"ME for PG I Sem - Structural, PE for UG VIII Sem"
+MTL7520,Machine Learning for Materials Design,2-0-2,Lalit,Sumeet Rajesh Khanna,K,"ME for PG I Sem - Structural/Functional, PE for UG VIII Sem"
+MTL7410,Diffusion in Solids,3-0-0,Appala Naidu,,I,"ME for PG I Sem - Structural, PE for UG VIII Sem"
+MTL7540,Functional 2D Materials,2-0-2,Devendra Singh Negi,Pranay Ranjan,I,"ME for PG I Sem - Functional, PE for UG VIII Sem"
+MTL7550,Advanced Semiconductor Materials and Device Applications,2-0-2,Ravi Prakash Srivastava,Pranay Ranjan,J,"ME for PG I Sem - Functional, PE for UG VIII Sem"
+MTL7280,Materials For electrochemical Energy Conversion and storage,3-0-0,Amitava Banerjee,Srijan Sengupta,I,"ME for PG I Sem - Functional, Battery & PE for UG VIII Sem"
+MTL7590,Batteries with Li and beyond Li –chemistry,3-0-0,Debasmita Dwibedi,Srijan Sengupta,J,ME for PG I Sem - Battery & PE for UG VIII Sem
+MTL7660,Sustainable composite,3-0-0,Vikramsingh Thakur,Kirti Sankhala,J,ME for PG I sem - Composite
+MTL7690,AI/ML/Big data for composite materials,3-0-0,Lalit,,I,ME for PG I sem - Composite
+MTL7250,Thermodynamics of Materials,2-0-2,Sumeet Rajesh Khanna,Appala Naidu,G,PC for PG I sem - Functional & Structural
+MTL7260,Characterization of Materials,2-0-2,Saurabh Nene,Shipra Bajpai,F,PC for PG I sem - Functional & Structural
+MTL7080,Plastic Deformation and Microstructure Evolution,3-0-0,Jaiveer Singh,,I,PC for PG I sem - Structural
+MTL7170,"Symmetry, Structure and Tensor Properties",3-0-0,Amitava Banerjee,,H,PC for PG I sem - Functional
+MTL7290,Battery Cell Chemistry and Materials,3-0-0,Srijan Sengupta,Debasmita Dwibedi,F,PC for PG I sem - Battery
+MTL7510,Battery Cell Fabrication and Manufacturing Technology,3-0-0,Debasmita Dwibedi,Srijan Sengupta,G,PC for PG I sem - Battery
+MTP7040,Battery Material Synthesis and Device Testing Laboratory,0-0-6,Srijan Sengupta,Debasmita Dwibedi,"M3, M2, M4",PC for PG I sem - Battery
+MTL7530,Introduction to Composite Materials,3-0-0,Vikramsingh Thakur,Anurag Sharma,F,PC for PG I sem - Composite
+MTL7570,Composite Processing & Fabrication Technology,3-0-0,Anurag Sharma,Vikramsingh Thakur,G,PC for PG I sem - Composite
+MTL7580,Characterization of Composite Materials,3-0-0,Anurag Sharma,Ravi Prakash Srivastava,H,PC for PG I sem - Composite
+MTP7050,Composite Materials Processing & Characterization Lab,0-0-2,Vikramsingh Thakur,Anurag Sharma,L5,PC for PG I sem - Composite
+MTT7010,M.Tech. Thesis Part 1,0-0-16,Nitin Kumar Sharma,,T,
+MTT8980,Thesis,0-0-6,Saurabh Nene,,T,
+MTT8990,Thesis,0-0-12,Saurabh Nene,,T,
+MTT8970,Thesis,0-0-16,Saurabh Nene,,T,
+MTN1010,Design Practical Experience,0-0-2,Lalit,,NG,
+MTN2020,Design Practical Experience,0-0-2,Hasan,,NG,
+MTN3010,Design Practical Experience,0-0-2,Amitava Banerjee,,NG,
+MTO8990,Research Proposal,0-0-32,Saurabh Nene,,T,

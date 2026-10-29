@@ -1,0 +1,81 @@
+,Program Name,Course code,LTP,Credits,Type,Course name,"Instructor(s):  
+(read ** as coordinator)",Slot
+1,BSc BEd (1st Year) Sem I,PHL1110,3-1-0,4,PC,General Physics-I ,Durgamadhab Mishra,CU
+2,BSc BEd (2nd Year) Sem III,PHL2020,3-0-0,3,PC,Fundamentals of Thermodynamics,Santosh,CA
+3,BSc BEd (2nd Year) Sem III,PHL2030,3-0-0,3,PC,Fundamentals of Optics,Sagar Kumar Verma,CE
+4,BSc BEd (2nd Year) Sem III,PHL2010,3-0-0,3,PC,Mathematical Methods in Physics,Ambesh Dixit,CC
+5,BSc BEd (2nd Year) Sem III,PHP2110,0-0-6,3,PC,Physics Lab-1,Sagar k Verma +Durgamadhab,M1
+6,BSc BEd (3rd Year) Sem V,PHL3110,3-0-0,3,PC,Electronics I,Satyajit Sahu ,CC
+7,BSc BEd (3rd Year) Sem V,PHL3030,3-0-0,3,PC,Solid State Physics,Durgamadhab Mishra + Krishna*,CK
+8,BSc BEd (3rd Year) Sem V,PHL3090,3-0-0,3,PC,Introduction to Plasma Physics,Ram Prakash,CA
+9,BSc BEd (3rd Year) Sem V,PHL3120,3-0-0,3,PC,Modern Optics,Sagar k Verma ,CB
+10,BSc BEd (3rd Year) Sem V,PHP3070,0-0-6,3,PC,Physics Lab-2,Satyajit Sahu + Ambesh,M6
+,,,,,,,,
+11,B.Tech. (1st Year),PHL1010,3-0-0,3,PC,Physics [Electromagnetism and Optics Theory] [English + Hindi],Prabhat** + Jitendra Kumar HEP,"AG,AK"
+12,B.Tech. (1st Year),PHP1010,0-0-2,1,PC,Physics Lab [Electromagnetism and Optics Lab],Prabhat + Jitendra Kumar HEP**,M1
+13,B.Tech (1st Year),OAE1010,0-0-2,1,-,Engineering Design I,Dushyant + Jitendra Kumar CMP,-
+14,B.Tech (1st Year),OSN1010,0-0-1,0.5,-,Social Connect and responsibilities I,Lata + Sagar Verma,-
+,,,,,,,,
+15,BS (3rd Sem),,3-0-0,3,PC,Environment and Sustainability,??,U
+16,BS (3rd Sem),PHL2150,3-1-0,4,PC,Classical Mechanics,Monika Sinha* + V Narayanan for tutorial,A
+17,BS (3rd Sem),PHL2110,3-1-0,4,PC,Mathematical Methods For Engineering Physicists,Ambesh Dixit,E
+18,BS (3rd Sem),PHL2100,3-0-0,3,PC,Thermal Physics,Sunita+Lata*,B
+19,BS (3rd Sem),PHL2140,3-1-0,4,PC,Electromagnetic Fields and Plasma,Ram Prakash** +Sagar,D
+21,BS (3rd Sem),PHN1010,0-0-4,2,,Design/Practical Experience,Jitendra HEP,NG1
+,,,,,,,,
+22,BS (5th Sem),PHL3010 ,3-0-0,3,PC,"Physics of atoms, molecules and nuclei",Reetanjali,C
+23,BS (5th Sem),PHL3020,3-0-0,3,PC,Electronics,Jitendra Kumar (CMP) ,B
+24,BS (5th Sem),PHL3031,3-0-2,4,PC,Solid State Physics,Shahab,E
+25,BS (5th Sem),PHP3010 ,0-0-3,1.5,PC,Electronics Lab,Satyajit Sahu,M3
+26,BS (5th Sem),PHP3020 ,0-0-3,1.5,PC,Thin film & Material Characterization Lab, Dushyant ,M4
+27,BS (5th Sem),PHN2030,0-0-4,2,-,Design/Practical Experience,Amit,NG2
+28,BS (5th Sem),PHP3030,0-0-3,1.5,PC,Applied Computational Lab ,Dr. Milan Hazra,M5
+29,BS (5th Sem),AIL30XX,3-0-0,3,PL,Big Data Management (check this),,Will be announced soon
+,,,,,,,,
+35,BS (7th Sem),PHL4010 ,2-0-2,3,PC,Fluids & Plasmas,Ram Prakash,E
+36,BS (7th Sem),PHD6300,0-0-6,3,PC,Specialization Core Project,Ram Prakash,T
+37,BS (7th Sem),PHN3010,0-0-4,2,PC,Design/Practical Experience,Naveen,NG3
+38,BS (7th Sem),QCL7080,2-0-2,3,SC,Specilization 1 (Quantum Tech): Introduction to Quantum Information,Amit (This is MTech Quantum Core course),H
+39,BS (7th Sem),QCL7320,3-0-0,3,SE,Specilization 2 (Quantum Tech): Quantum Cryptography and Coding,V Narayanan,G
+40,BS (7th Sem),QCP7030,0-0-4,2,SC,Specilization 3 (Quantum Tech): Quantum computation and communication Laboratory,V Narayanan,M4
+41,BS (7th Sem),QCL7350,2-0-2,3,SE,Specilization 4 (Quantum Tech): Quantum Inspired Optimization,Kirankumar,B
+,,,,,,,,
+42,MSc (1st Sem),PHL4110,3-0-0,3,PC,Mathematical Physics,Ambesh Dixit ,H
+43,MSc (1st Sem),PHL4120,3-1-0,4,PC,Classical Mechanics ,Monika Sinha* + V Narayanan for tutorial,A
+44,MSc (1st Sem),PHL4130,3-0-0,3,PC,Quantum Mechanics, Subhashish,G
+45,MSc (1st Sem),PHL4140,3-0-0,3,PC,Electronics,Shahab** + Krishna  ,I
+46,MSc (1st Sem),PHL4150,3-0-0,3,PC,Statistical Physics ,Sunita,J
+47,MSc (1st Sem),PHP4010,0-0-6,3,PC,Physics Lab-I (Ele/optics),Krishna+CMP Jitendra,L6
+,,,,,,,,
+48,MSc (3rd Sem),PHP6070,0-0-3,1.5,MC,Computational Physics Lab,Santosh,L7
+49,MSc (3rd Sem),PHD6040,0-0-10,5,MP,M.Sc Project I,Shahab ,T
+50,MSc (3rd Sem),PHQ6010,0-0-1,0.5,MC,M.Sc Seminar,Santosh,L5
+51,MSc (3rd Sem),QCL7080,2-0-2,3,ME,Elective: Introduction to Quantum Information (IDRP QIC),Amit (This is MTech Quantum Core course),H
+52,MSc (3rd Sem),PHL7360,3-0-0,3,ME,Elective: Introduction to material characterization , Naveen Tailor,D
+53,MSc (3rd Sem),PHL7340,3-0-0,3,ME,Elective: Quantum Field Theory,Lata,J
+54,MSc (3rd Sem),QCL7070,3-0-0,3,ME,Elective: Quantum Computation (IDRP QIC),Srivatsa N.S (This is MTech Quantum Core course),I
+55,MSc (3rd Sem),PHL7330,3-0-0,3,ME,Elective: Laser Technologies and Ultrafast Optics,Sagar Verma,N
+56,MSc (3rd Sem),PHL7030,3-0-0,3,ME,Elective: Fiber-Optical Communication,Sunil Kumar ,F
+57,MSc (3rd Sem),PHL6170,3-0-0,3,ME,Elective: Quantum Materials and Devices,Dushyant ,G
+,,,,,,,,
+58,MTech Quantum Technology,QCL7070,3-0-0,3,,Quantum Computation,Srivatsa,I
+59,MTech Quantum Technology,QCL7080,2-0-2,3,,Introduction to Quantum Information,Amit Mukherjee,H
+60,MTech Quantum Technology,QCL7350,2-0-2,3,,Quantum-Inspired Optimization,Kirankumar,B
+61,MTech Quantum Technology,QCL7320,3-0-0,3,,Quantum cryptography and coding,V Narayanan,G
+,,,,,,,,
+62,Ph.D.,PHL7020,3-0-0,3,PC,NEW Core 1: Review of Fundamental Physics,Naveen ,I
+63,Ph.D.,PHL7010,3-0-0,3,PC,NEW Core 2: Review of Quantum and Condensed Matter Physics,SB** (quantum) + Santosh (quantum) + Dushyant (CMP),U
+64,Ph.D.,MSc PE,3-0-0,3,PC,Elective-1 (Choose form MSc basket),,-
+65,Ph.D.,MSc PE,3-0-0,3,PC,Elective-2 (Choose form MSc basket),,-
+66,Ph.D.,PHL7040,3-0-0,3,PC,Elective- Statistical Methods and Data Analysis,Jitendra HEP* + Prabhat,G
+,,,,,,,,
+,Ph.D.,PHO8930,0-0-6,3,,Research Proposal,,
+,Ph.D.,PHO8940,0-0-8,4,,,,
+,Ph.D.,PHO8950,0-0-12,6,,,,
+,Ph.D.,PHO8960,0-0-20,10,,,,
+,Ph.D.,PHO8970,0-0-24,12,,,,
+,Ph.D.,PHO8980,0-0-16,8,,,,
+,Ph.D.,PHO8990,0-0-32,16,,,,
+,Ph.D.,PHT8980,0-0-6,6,,Thesis,Monika Sinha,T
+,Ph.D.,PHT8990,0-0-12,12,,Thesis,Monika Sinha,T
+,Ph.D.,PH799,0-0-0 ,16,,PhD Thesis,Monika Sinha,T
