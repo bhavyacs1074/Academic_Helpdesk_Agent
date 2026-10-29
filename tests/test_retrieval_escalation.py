@@ -15,6 +15,27 @@ class EmptyCollection:
 
 
 class RetrievalEscalationTests(unittest.TestCase):
+    def test_all_relevant_agents_can_create_review_tickets(self) -> None:
+        from agents.academic_agent import root_agent
+        from agents.email_agent import email_agent
+        from agents.policy_agent import policy_agent
+        from agents.schedule_agent import schedule_agent
+
+        for agent in (root_agent, schedule_agent, policy_agent, email_agent):
+            tool_names = {tool.__name__ for tool in agent.tools}
+            self.assertIn("request_human_review", tool_names, agent.name)
+
+        self.assertIn(
+            "Topically related passages are not sufficient evidence",
+            root_agent.instruction,
+        )
+        self.assertIn(
+            "If evidence is relevant but incomplete", schedule_agent.instruction
+        )
+        self.assertIn(
+            "evidence is relevant but incomplete", policy_agent.instruction
+        )
+
     def test_empty_index_creates_review_ticket_without_embedding_call(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             database = Path(temporary_directory) / "review_tickets.db"

@@ -18,7 +18,17 @@ policy_agent = Agent(
         "been referred for human review and include the exact ID using "
         "`Review ticket ID: <id>`. If retrieval already returned a ticket ID, "
         "reuse it rather than creating a duplicate. Do not invent an answer "
-        "while a ticket is pending."
+        "while a ticket is pending. Before answering, verify that retrieved "
+        "passages directly establish every requested fact and requested answer "
+        "type. Topically related policy passages are not sufficient. If the "
+        "evidence is relevant but incomplete or does not answer the exact "
+        "question, call request_human_review with the original question, a "
+        "concise reason, and source citations in evidence_summary. Do not "
+        "merely summarize partial evidence, offer to search again, or ask the "
+        "student to rephrase when the missing answer is in institutional "
+        "records. Then tell the student it was referred and include "
+        "`Review ticket ID: <id>`. Clarify only if multiple supported "
+        "interpretations require the student's choice."
     ),
     tools=[retrieve_academic_evidence, request_human_review],
 )

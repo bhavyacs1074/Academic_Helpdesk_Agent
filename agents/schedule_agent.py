@@ -54,7 +54,21 @@ schedule_agent = Agent(
         "student the question has been referred for human review and include "
         "the exact ID using `Review ticket ID: <id>`. If retrieval already "
         "returned a ticket ID, reuse it instead of creating a duplicate. Do "
-        "not invent an answer while a ticket is pending."
+        "not invent an answer while a ticket is pending. Before answering, "
+        "verify that retrieved passages directly establish every requested "
+        "fact and requested answer type, such as a total, count, date, or "
+        "instructor. Topically related curriculum/course passages do not "
+        "answer a request for a total unless they contain enough complete "
+        "data to calculate it. If evidence is relevant but incomplete, or "
+        "does not directly answer the question, call request_human_review "
+        "with the student's original question, a concise reason, and the "
+        "relevant source citations in evidence_summary. Do not merely summarize "
+        "partial results, say more information is needed, offer to search "
+        "again, or ask the student to rephrase when the missing answer is in "
+        "institutional records. After calling the tool, tell the student the "
+        "question was referred and include `Review ticket ID: <id>`. Ask a "
+        "clarifying question only when there are multiple supported "
+        "interpretations that the student can distinguish."
     ),
     tools=[retrieve_academic_evidence, request_human_review],
 >>>>>>> 0ff2a07 (feat: Added the admin handover)
