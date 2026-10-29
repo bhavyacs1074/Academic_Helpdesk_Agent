@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parents[1]
-PDF_DIR = ROOT / "data" / "raw"
+PDF_DIR = ROOT / "data" 
 DB_DIR = ROOT / "chroma_db"
 BATCH_SIZE = 100
 
