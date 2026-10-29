@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp, BookOpen, CalendarDays, FileText, Menu, PanelLeftClose, Plus, ShieldCheck, Sparkles } from "lucide-react";
@@ -65,15 +65,6 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  useEffect(() => {
-    const storedSessionId = window.sessionStorage.getItem(SESSION_STORAGE_KEY);
-    const currentSessionId = storedSessionId ?? window.crypto.randomUUID();
-    if (!storedSessionId) {
-      window.sessionStorage.setItem(SESSION_STORAGE_KEY, currentSessionId);
-    }
-    setSessionId(currentSessionId);
-  }, []);
-
   function newChat() {
     const newSessionId = window.crypto.randomUUID();
     window.sessionStorage.setItem(SESSION_STORAGE_KEY, newSessionId);
@@ -86,11 +77,17 @@ export default function Home() {
 
   async function sendMessage(text?: string) {
     const question = (text ?? input).trim();
-    if (!question || loading || !sessionId) return;
+    if (!question || loading) return;
+    const activeSessionId =
+      sessionId ??
+      window.sessionStorage.getItem(SESSION_STORAGE_KEY) ??
+      window.crypto.randomUUID();
+    window.sessionStorage.setItem(SESSION_STORAGE_KEY, activeSessionId);
+    setSessionId(activeSessionId);
     setMessages((previous) => [...previous, { id: Date.now(), role: "user", content: question }]);
     setInput("");
     setLoading(true);
-    const answer = await requestAssistantResponse(question, sessionId);
+    const answer = await requestAssistantResponse(question, activeSessionId);
     if (answer) {
       window.sessionStorage.setItem(SESSION_STORAGE_KEY, answer.session_id);
       setSessionId(answer.session_id);
@@ -116,7 +113,7 @@ export default function Home() {
           <div className="brand"><div className="brand-icon" aria-hidden="true" />{sidebarOpen && <div className="brand-copy"><span className="brand-name">Academic Chatbot</span></div>}</div>
           <button className="icon-button collapse-button" aria-label="Toggle sidebar" onClick={() => { setSidebarOpen(!sidebarOpen); setMobileSidebarOpen(false); }}>{sidebarOpen ? <PanelLeftClose size={18} /> : <Menu size={18} />}</button>
         </div>
-        <button className="new-chat-button" onClick={newChat} disabled={!sessionId || loading}><Plus size={19} />{sidebarOpen && <span>New conversation</span>}</button>
+        <button className="new-chat-button" onClick={newChat} disabled={loading}><Plus size={19} />{sidebarOpen && <span>New conversation</span>}</button>
         {sidebarOpen && <div className="sidebar-content"><div className="sidebar-bottom"><div className="help-card"><div className="help-card-icon"><ShieldCheck size={19} /></div><div><strong>Academic answers</strong><p>Grounded in official documents</p></div></div></div></div>}
       </motion.aside>
 
@@ -127,7 +124,7 @@ export default function Home() {
             {messages.length === 0 ? <motion.div key="welcome" className="welcome-screen" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.35 }}><h1 className="welcome-title">Academic Chatbot</h1><p className="welcome-description">Ask questions about courses, exams, academic rules, and more.</p><div className="suggestion-grid">{suggestions.map((item, index) => { const Icon = item.icon; return <motion.button key={item.title} className="suggestion-card" onClick={() => void sendMessage(item.text)} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 + index * 0.09, duration: 0.35 }} whileHover={{ y: -4, scale: 1.01 }} whileTap={{ scale: 0.98 }}><div className={`suggestion-icon ${item.color}`}><Icon size={20} /></div><div className="suggestion-copy"><strong>{item.title}</strong><span>{item.text}</span></div><span className="suggestion-arrow">&rarr;</span></motion.button>; })}</div></motion.div> : <motion.div key="conversation" className="conversation" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>{messages.map((message, index) => <motion.div key={message.id} className={`message-row ${message.role === "user" ? "user-row" : "assistant-row"}`} initial={{ opacity: 0, y: 12, scale: 0.99 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.25, delay: index === messages.length - 1 ? 0 : 0.02 }}>{message.role === "assistant" && <div className="assistant-avatar"><ChatbotAnimation /></div>}<div className="message-content">{message.role === "assistant" && <div className="message-author">Academic Chatbot</div>}<div className={`message-bubble ${message.role === "user" ? "user-bubble" : "assistant-bubble"}`}>{message.content}</div></div></motion.div>)}{loading && <motion.div className="message-row assistant-row" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><div className="assistant-avatar"><ChatbotAnimation /></div><div className="typing-bubble"><span className="typing-label">Replying</span></div></motion.div>}</motion.div>}
           </AnimatePresence>
         </div>
-        <div className="composer-area"><form className="composer" onSubmit={(event) => { event.preventDefault(); void sendMessage(); }}><textarea rows={1} value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendMessage(); } }} placeholder="Ask about courses, exams, or academic rules..." aria-label="Your message" disabled={loading || !sessionId} /><div className="composer-footer"><div className="composer-hint"><Sparkles size={14} /><span>Academic answers, made simple</span></div><motion.button type="submit" className="send-button" disabled={!input.trim() || loading || !sessionId} aria-label="Send message" whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.92 }}><ArrowUp size={19} /></motion.button></div></form><p className="disclaimer">Responses appear here when the academic service is connected.</p></div>
+        <div className="composer-area"><form className="composer" onSubmit={(event) => { event.preventDefault(); void sendMessage(); }}><textarea rows={1} value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void sendMessage(); } }} placeholder="Ask about courses, exams, or academic rules..." aria-label="Your message" disabled={loading} /><div className="composer-footer"><div className="composer-hint"><Sparkles size={14} /><span>Academic answers, made simple</span></div><motion.button type="submit" className="send-button" disabled={!input.trim() || loading} aria-label="Send message" whileHover={{ scale: 1.06 }} whileTap={{ scale: 0.92 }}><ArrowUp size={19} /></motion.button></div></form><p className="disclaimer">Responses appear here when the academic service is connected.</p></div>
       </section>
     </main>
   );
