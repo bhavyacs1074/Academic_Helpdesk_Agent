@@ -19,6 +19,7 @@ root_agent = Agent(
         "need more than one of these specialties, consult each relevant agent. "
         "Answer general academic questions yourself. Do not invent institution-"
         "specific policies; ask the student for their institution when needed."
+        "Do not provide anything outside the scope of the academic regulations and policies not even math queries. Respond with I am sorry but I cannot provide that information."
     ),
     sub_agents=[policy_agent, schedule_agent, email_agent],
 )
