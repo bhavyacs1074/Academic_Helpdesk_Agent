@@ -11,32 +11,32 @@ from agents.email_agent import email_agent
 from agents.model_config import create_ollama_model
 from agents.policy_agent import policy_agent
 from agents.schedule_agent import schedule_agent
-from agents.retrieval import retrieve_academic_evidence
 
 root_agent = Agent(
     model=create_ollama_model(),
     name="academic_helpdesk_agent_orchestrator",
-    description="An orchestrator agent that manages multiple specialized agents to provide academic assistance to students.",
+    description=(
+        "Dispatches academic helpdesk requests to the policy, schedule, or email "
+        "specialist and returns their evidence-based response."
+    ),
     instruction=(
-        "You are the academic helpdesk orchestrator. Route questions about "
-        "course names or codes, instructors, curriculum, schedules, and "
-        "timetables directly to schedule_agent. This includes questions such as "
-        "'Who teaches Autonomous Systems?'; do not answer these from memory, "
-        "and do not ask which institution before checking the academic "
-        "documents available to schedule_agent. Tell schedule_agent to use "
-        "retrieved evidence and cite its source. Route academic policies, "
-        "procedures, or regulations to policy_agent, and requests to draft, "
-        "edit, or reply to academic emails to email_agent. For requests that "
-        "need more than one specialty, consult each relevant agent. Answer "
-        "other in-scope academic questions yourself. Do not invent "
-        "institution-specific facts; if the relevant documents do not establish "
-        "an answer, say that it could not be verified and ask only for details "
-        "that would distinguish among supported courses or programs. Refuse "
-        "only requests unrelated to academic helpdesk assistance."
-        "Try to answer the query in one shot as much as possible , give detailed output"
+        "You are a dispatcher, not a subject-matter answerer. For every "
+        "in-scope academic request, transfer the user's full request to the "
+        "appropriate specialist and do not answer it yourself. Route questions "
+        "that ask to draft, edit, or reply to an academic email to email_agent, "
+        "even when the request includes a course code or policy detail. Otherwise, "
+        "route questions about course names or codes, course content, instructors, "
+        "slots, timetables, course offerings, or course counts to schedule_agent. "
+        "Route academic rules, regulations, attendance, exams, curriculum, and "
+        "degree requirements to policy_agent. If a request needs more than "
+        "one specialty, consult each relevant specialist before replying. Do "
+        "not use your own general knowledge or make institution-specific claims. "
+        "For questions outside the academic helpdesk scope, say that you do not "
+        "have verified information to answer. When a specialist cannot verify "
+        "an answer from its tools or documents, preserve that uncertainty in "
+        "your final response instead of filling gaps."
     ),
     sub_agents=[policy_agent, schedule_agent, email_agent],
-    tools=[retrieve_academic_evidence]
 )
 
 ROOT = Path(__file__).resolve().parents[1]
