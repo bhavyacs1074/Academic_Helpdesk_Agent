@@ -220,3 +220,5 @@ __marimo__/
 .streamlit/secrets.toml
 #Data
 .local/
+chroma_db/
+logs/

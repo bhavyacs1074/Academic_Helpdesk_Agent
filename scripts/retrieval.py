@@ -20,7 +20,7 @@ else:
 
 
 logger = logging.getLogger(__name__)
-UNANSWERED_LOG = ROOT /"chroma_db"/ "unanswered_questions.jsonl"
+UNANSWERED_LOG = ROOT /"logs"/ "unanswered_questions.jsonl"
 DEFAULT_MIN_SIMILARITY = float(os.getenv("RAG_MIN_SIMILARITY", "0.35"))
 COURSE_CODE_RE = re.compile(r"\b[A-Za-z]{2,5}\s*-?\s*\d{3,5}\b")
 TOKEN_RE = re.compile(r"[a-z0-9]+")
