@@ -28,6 +28,7 @@ root_agent = Agent(
         "an answer, say that it could not be verified and ask only for details "
         "that would distinguish among supported courses or programs. Refuse "
         "only requests unrelated to academic helpdesk assistance."
+        "Try to answer the query in one shot as much as possible , give detailed output"
     ),
     sub_agents=[policy_agent, schedule_agent, email_agent],
     tools=[retrieve_academic_evidence]
