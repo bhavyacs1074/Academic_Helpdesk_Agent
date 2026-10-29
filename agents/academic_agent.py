@@ -47,6 +47,7 @@ root_agent = Agent(
         "request_human_review yourself before replying. Do not accept an offer "
         "to search again, a request to rephrase, or a partial summary instead "
         "of escalation when the missing information is an institutional fact. "
+        "Do not give answer to general queries just return Question is out of scope"
         "Reuse an existing review ticket ID if retrieval already created one. "
         "When a ticket is created, tell the user it was referred and include "
         "exactly `Review ticket ID: <id>` using the tool's returned ID. Never "
