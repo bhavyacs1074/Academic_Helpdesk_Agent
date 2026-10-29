@@ -699,22 +699,20 @@ button:disabled {
 
 .typing-bubble {
   display: flex;
-  height: 37px;
+  width: 48px;
+  height: 32px;
   align-items: center;
+  justify-content: center;
   gap: 5px;
-  padding: 0 15px;
+  margin-left: 44px;
   border: 1px solid var(--border);
   border-radius: 6px 14px 14px;
   background: rgba(255, 255, 255, 0.035);
 }
 
-.typing-label {
-  color: #9d91d5;
-  font-size: 10px;
-  letter-spacing: 0.2px;
-}
-
 .typing-bubble span {
+  display: block;
+  flex: 0 0 5px;
   width: 5px;
   height: 5px;
   border-radius: 50%;
