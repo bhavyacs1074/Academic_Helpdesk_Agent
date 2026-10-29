@@ -62,6 +62,14 @@ def main() -> None:
     ids: list[str] = []
     documents: list[str] = []
     metadatas: list[dict[str, str | int]] = []
+    source_ids: dict[str, set[str]] = {}
+    successful_sources: set[str] = set()
+    failed_sources: set[str] = set()
+    discovered_sources = {
+        str(path.relative_to(PDF_DIR))
+        for paths in documents_by_type.values()
+        for path in paths
+    }
     failures = 0
     indexed_chunks = 0
 
@@ -91,7 +99,9 @@ def main() -> None:
             record_key = (
                 f"{file_type}:{source}:{location_type}:{location}:{chunk_number}"
             )
-            ids.append(hashlib.sha256(record_key.encode("utf-8")).hexdigest())
+            doc_id = hashlib.sha256(record_key.encode("utf-8")).hexdigest()
+            ids.append(doc_id)
+            source_ids.setdefault(source, set()).add(doc_id)
             documents.append(text_chunk)
             metadatas.append(
                 {
@@ -127,9 +137,11 @@ def main() -> None:
                             source, text, "csv", "row_index", row_index
                         )
                 indexed_chunks += file_chunks
+                successful_sources.add(source)
                 logger.info("Indexed %d chunks from CSV %s", file_chunks, source)
         except (OSError, UnicodeError, csv.Error):
             failures += 1
+            failed_sources.add(source)
             logger.exception("Failed to process CSV %s", source)
 
     for markdown_path in documents_by_type[".md"]:
@@ -142,9 +154,11 @@ def main() -> None:
                 else 0
             )
             indexed_chunks += file_chunks
+            successful_sources.add(source)
             logger.info("Indexed %d chunks from Markdown %s", file_chunks, source)
         except (OSError, UnicodeError):
             failures += 1
+            failed_sources.add(source)
             logger.exception("Failed to process Markdown %s", source)
 
     for pdf_path in documents_by_type[".pdf"]:
@@ -165,12 +179,36 @@ def main() -> None:
                     source, text, "pdf", "page_number", page_number
                 )
             indexed_chunks += file_chunks
+            successful_sources.add(source)
             logger.info("Indexed %d chunks from PDF %s", file_chunks, source)
         except (OSError, PdfReadError):
             failures += 1
+            failed_sources.add(source)
             logger.exception("Failed to process PDF %s", source)
 
     save_batch()
+    stored_count = collection.count()
+    stored = (
+        collection.get(limit=stored_count, include=["metadatas"])
+        if stored_count
+        else {"ids": [], "metadatas": []}
+    )
+    stale_ids = [
+        doc_id
+        for doc_id, metadata in zip(stored["ids"], stored["metadatas"])
+        if (
+            metadata.get("source") in successful_sources
+            and doc_id not in source_ids.get(str(metadata.get("source")), set())
+        )
+        or (
+            metadata.get("source") not in discovered_sources
+            and metadata.get("source") not in failed_sources
+            and metadata.get("file_type") in {"csv", "markdown", "pdf"}
+        )
+    ]
+    if stale_ids:
+        collection.delete(ids=stale_ids)
+        logger.info("Removed %d stale document chunks", len(stale_ids))
     logger.info(
         "Finished ingestion: indexed %d chunks; failed files: %d",
         indexed_chunks,

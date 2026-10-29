@@ -11,6 +11,10 @@ from agents.email_agent import email_agent
 from agents.model_config import create_ollama_model
 from agents.policy_agent import policy_agent
 from agents.schedule_agent import schedule_agent
+<<<<<<< HEAD
+=======
+from agents.retrieval import request_human_review, retrieve_academic_evidence
+>>>>>>> 0ff2a07 (feat: Added the admin handover)
 
 root_agent = Agent(
     model=create_ollama_model(),
@@ -20,6 +24,7 @@ root_agent = Agent(
         "specialist and returns their evidence-based response."
     ),
     instruction=(
+<<<<<<< HEAD
         "You are a dispatcher, not a subject-matter answerer. For every "
         "in-scope academic request, transfer the user's full request to the "
         "appropriate specialist and do not answer it yourself. Route questions "
@@ -37,6 +42,33 @@ root_agent = Agent(
         "your final response instead of filling gaps."
     ),
     sub_agents=[policy_agent, schedule_agent, email_agent],
+=======
+        "You are the academic helpdesk orchestrator. Route questions about "
+        "course names or codes, instructors, curriculum, schedules, and "
+        "timetables directly to schedule_agent. This includes questions such as "
+        "'Who teaches Autonomous Systems?'; do not answer these from memory, "
+        "and do not ask which institution before checking the academic "
+        "documents available to schedule_agent. Tell schedule_agent to use "
+        "retrieved evidence and cite its source. Route academic policies, "
+        "procedures, or regulations to policy_agent, and requests to draft, "
+        "edit, or reply to academic emails to email_agent. For requests that "
+        "need more than one specialty, consult each relevant agent. Answer "
+        "other in-scope academic questions yourself. Do not invent "
+        "institution-specific facts; if the relevant documents do not establish "
+        "an answer, say that it could not be verified and ask only for details "
+        "that would distinguish among supported courses or programs. If a "
+        "retrieval result contains review_ticket.ticket_id, explain that the "
+        "question was referred for human review, include the exact ID using "
+        "`Review ticket ID: <id>`, and do not guess. If reliable sources "
+        "conflict, call request_human_review with the original question, "
+        "concise reason, and source citations in evidence_summary. Reuse an ID "
+        "already returned by retrieval. Refuse "
+        "only requests unrelated to academic helpdesk assistance."
+        "Try to answer the query in one shot as much as possible , give detailed output"
+    ),
+    sub_agents=[policy_agent, schedule_agent, email_agent],
+    tools=[retrieve_academic_evidence, request_human_review]
+>>>>>>> 0ff2a07 (feat: Added the admin handover)
 )
 
 ROOT = Path(__file__).resolve().parents[1]

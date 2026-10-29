@@ -3,24 +3,32 @@
 from __future__ import annotations
 
 import argparse
-import json
-import logging
 import math
 import os
 import re
-from datetime import datetime, timezone
 from pathlib import Path
 from threading import Lock
 from typing import Any
 
 if __package__:
-    from scripts.rag import DB_DIR, EMBEDDING_MODEL, OLLAMA_BASE_URL, ROOT, embed_texts, get_collection
+    from scripts.rag import (
+        DB_DIR,
+        EMBEDDING_MODEL,
+        OLLAMA_BASE_URL,
+        embed_texts,
+        get_collection,
+    )
 else:
-    from rag import DB_DIR, EMBEDDING_MODEL, OLLAMA_BASE_URL, ROOT, embed_texts, get_collection
+    from rag import (
+        DB_DIR,
+        EMBEDDING_MODEL,
+        OLLAMA_BASE_URL,
+        embed_texts,
+        get_collection,
+    )
+from agents.review_tickets import create_ticket
 
 
-logger = logging.getLogger(__name__)
-UNANSWERED_LOG = ROOT / "chroma_db" / "unanswered_questions.jsonl"
 DEFAULT_MIN_SIMILARITY = float(os.getenv("RAG_MIN_SIMILARITY", "0.35"))
 COURSE_CODE_RE = re.compile(r"\b[A-Za-z]{2,5}\s*-?\s*\d{3,5}\b")
 TOKEN_RE = re.compile(r"[a-z0-9]+")
@@ -104,8 +112,6 @@ class AcademicRetriever:
         self.api_base = api_base
         self.collection = get_collection(persist_dir=persist_dir, model=model)
         count = self.collection.count()
-        if count == 0:
-            raise RuntimeError("The academic index is empty. Run `python scripts/ingest_pdfs.py` first.")
         stored = self.collection.get(
             limit=count,
             include=["documents", "metadatas"],
@@ -135,6 +141,26 @@ class AcademicRetriever:
             raise ValueError("top_k and candidate_k must be positive")
         if not 0.0 <= minimum_similarity <= 1.0:
             raise ValueError("minimum_similarity must be between 0 and 1")
+        if not self.ids:
+            response: dict[str, Any] = {
+                "query": query,
+                "has_evidence": False,
+                "reason": "The academic index is empty; no source evidence is available.",
+                "minimum_similarity": minimum_similarity,
+                "evidence": [],
+            }
+            if log_unanswered:
+                ticket = create_ticket(
+                    query,
+                    reason="The academic index is empty; no source evidence is available.",
+                )
+                response["review_ticket"] = {
+                    "ticket_id": ticket["ticket_id"],
+                    "status": ticket["status"],
+                    "occurrence_count": ticket["occurrence_count"],
+                    "best_similarity": None,
+                }
+            return response
 
         query_vector = embed_texts(
             [query], model=self.model, api_base=self.api_base
@@ -212,33 +238,34 @@ class AcademicRetriever:
         }
         if not has_evidence and log_unanswered:
             best_similarity = max(similarities.values(), default=None)
-            _log_unanswered(query, minimum_similarity, best_similarity)
+            ticket = create_ticket(
+                query,
+                reason="No retrieved source met the relevance threshold.",
+                evidence=[
+                    {
+                        "citation": hit["citation"],
+                        "similarity": hit["similarity"],
+                    }
+                    for hit in candidates[:3]
+                ],
+            )
+            response["review_ticket"] = {
+                "ticket_id": ticket["ticket_id"],
+                "status": ticket["status"],
+                "occurrence_count": ticket["occurrence_count"],
+                "best_similarity": best_similarity,
+            }
         return response
-
-
-def _log_unanswered(
-    query: str,
-    minimum_similarity: float,
-    best_similarity: float | None,
-) -> None:
-    """Append unsupported queries for later human review."""
-    record = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "query": query,
-        "reason": "No retrieved source met the relevance threshold.",
-        "minimum_similarity": minimum_similarity,
-        "best_similarity": best_similarity,
-    }
-    try:
-        UNANSWERED_LOG.parent.mkdir(parents=True, exist_ok=True)
-        with UNANSWERED_LOG.open("a", encoding="utf-8") as log_file:
-            log_file.write(json.dumps(record, ensure_ascii=False) + "\n")
-    except OSError:
-        logger.exception("Could not append unsupported query to %s", UNANSWERED_LOG)
 
 
 _retrievers: dict[tuple[str, str, str], AcademicRetriever] = {}
 _retrievers_lock = Lock()
+
+
+def clear_retriever_cache() -> None:
+    """Drop loaded documents so the next search sees the current Chroma index."""
+    with _retrievers_lock:
+        _retrievers.clear()
 
 
 def retrieve(
@@ -270,6 +297,35 @@ def retrieve(
 def retrieve_academic_evidence(query: str) -> dict[str, Any]:
     """Minimal one-argument wrapper for future agent-tool registration."""
     return retrieve(query)
+
+
+def request_human_review(
+    question: str,
+    reason: str,
+    evidence_summary: str = "",
+) -> dict[str, str]:
+    """Create a review ticket when sources conflict or cannot verify an answer."""
+    normalized_question = question.strip()
+    normalized_reason = reason.strip()
+    if not normalized_question or len(normalized_question) > 4000:
+        raise ValueError("A review question must contain 1 to 4000 characters.")
+    if not normalized_reason or len(normalized_reason) > 500:
+        raise ValueError("A review reason must contain 1 to 500 characters.")
+    if len(evidence_summary) > 2000:
+        raise ValueError("The evidence summary must be 2000 characters or fewer.")
+    ticket = create_ticket(
+        normalized_question,
+        reason=normalized_reason,
+        evidence=(
+            [{"summary": evidence_summary.strip()}]
+            if evidence_summary.strip()
+            else None
+        ),
+    )
+    return {
+        "ticket_id": ticket["ticket_id"],
+        "status": ticket["status"],
+    }
 
 
 def main() -> None:
