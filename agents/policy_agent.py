@@ -6,6 +6,7 @@ from agents.retrieval import request_human_review, retrieve_academic_evidence
 policy_agent = Agent(
     model=create_ollama_model(),
     name="policy_agent",
+    mode="single_turn",
     description="A specialized agent that provides information and guidance on academic policies, procedures, and regulations.",
     instruction=(
         "Use the retrieval tool to find relevant academic policies and regulations. "

@@ -44,23 +44,59 @@ class RetrievalEscalationTests(unittest.TestCase):
         from agents.policy_agent import policy_agent
         from agents.schedule_agent import schedule_agent
 
+        for agent in (policy_agent, schedule_agent, email_agent):
+            self.assertEqual(agent.mode, "single_turn", agent.name)
+
         for agent in (root_agent, schedule_agent, policy_agent, email_agent):
-            tool_names = {tool.__name__ for tool in agent.tools}
+            tool_names = {
+                getattr(tool, "__name__", getattr(tool, "name", ""))
+                for tool in agent.tools
+            }
             self.assertIn("request_human_review", tool_names, agent.name)
 
-        schedule_tool_names = {tool.__name__ for tool in schedule_agent.tools}
+        self.assertNotIn(
+            "retrieve_academic_evidence",
+            {
+                getattr(tool, "__name__", getattr(tool, "name", ""))
+                for tool in root_agent.tools
+            },
+        )
+        self.assertIn(
+            "retrieve_academic_evidence",
+            {
+                getattr(tool, "__name__", getattr(tool, "name", ""))
+                for tool in policy_agent.tools
+            },
+        )
+
+        schedule_tool_names = {
+            getattr(tool, "__name__", getattr(tool, "name", ""))
+            for tool in schedule_agent.tools
+        }
         self.assertIn("lookup_course", schedule_tool_names)
         self.assertIn("count_courses", schedule_tool_names)
         self.assertIn(
-            "topically related or partial passages are not enough",
+            "partial or merely related evidence is not enough",
             root_agent.instruction,
         )
+        self.assertIn("specialist agent tool by its exact name", root_agent.instruction)
         self.assertIn(
             "If evidence is partial", schedule_agent.instruction
         )
         self.assertIn(
             "evidence is relevant but incomplete", policy_agent.instruction
         )
+
+    def test_agent_retrieval_limits_context_to_three_evidence_chunks(self) -> None:
+        with patch.object(
+            retrieval,
+            "retrieve",
+            return_value={"has_evidence": True, "evidence": []},
+        ) as retrieve:
+            result = retrieval.retrieve_academic_evidence("test question")
+
+        self.assertTrue(result["has_evidence"])
+        retrieve.assert_called_once_with("test question", top_k=3)
 
     def test_empty_index_creates_review_ticket_without_embedding_call(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -199,6 +235,40 @@ class RetrievalEscalationTests(unittest.TestCase):
         self.assertIn("forwarded your question", deltas[0])
         self.assertNotIn(partial, deltas[0])
         self.assertEqual(len(tickets), 1)
+
+    def test_streaming_reports_direct_specialist_tool_calls(self) -> None:
+        from agents import academic_agent
+
+        event = SimpleNamespace(
+            author="academic_helpdesk_agent_orchestrator",
+            partial=False,
+            content=None,
+            get_function_calls=lambda: [
+                SimpleNamespace(name="policy_agent", args={}),
+            ],
+        )
+        runner = FakeRunner([event])
+        with patch.object(academic_agent, "runner", runner):
+
+            async def collect_stream() -> list[dict[str, str]]:
+                return [
+                    item
+                    async for item in academic_agent.stream_agent(
+                        "How many grade points does an O grade carry?",
+                        "student",
+                        "session",
+                    )
+                ]
+
+            events = asyncio.run(collect_stream())
+
+        self.assertIn(
+            {
+                "type": "status",
+                "message": "Checking academic policies...",
+            },
+            events,
+        )
 
 
 if __name__ == "__main__":

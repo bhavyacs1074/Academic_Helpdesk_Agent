@@ -12,10 +12,7 @@ from agents.email_agent import email_agent
 from agents.model_config import create_ollama_model
 from agents.policy_agent import policy_agent
 from agents.schedule_agent import schedule_agent
-from agents.retrieval import (
-    request_human_review,
-    retrieve_academic_evidence,
-)
+from agents.retrieval import request_human_review
 
 root_agent = Agent(
     model=create_ollama_model(),
@@ -25,38 +22,26 @@ root_agent = Agent(
         "specialist and returns their evidence-based response."
     ),
     instruction=(
-        "You are a dispatcher, not a subject-matter answerer. For every "
-        "in-scope academic request, transfer the user's full request to the "
-        "appropriate specialist and do not answer it yourself. Route requests "
-        "to draft, edit, or reply to an academic email to email_agent, even "
-        "when they include a course code or policy detail. Otherwise route "
-        "course names/codes, course content, instructors, slots, timetables, "
-        "offerings, and course counts to schedule_agent. Route academic rules, "
-        "regulations, attendance, exams, curriculum, and degree requirements "
-        "to policy_agent. For requests needing multiple specialties, consult "
-        "each relevant specialist before replying. Do not use general knowledge "
-        "or make institution-specific claims. Preserve uncertainty when a "
-        "specialist cannot verify an answer from tools or documents. The "
-        "specialist must verify that evidence directly answers the exact "
-        "question; topically related or partial passages are not enough. If "
-        "evidence is incomplete, sources conflict, or a requested fact such as "
-        "a count is not established, the specialist must call "
-        "request_human_review with the user's original question, a concise "
-        "reason, and source citations/evidence summary. If a specialist returns "
-        "an unverified answer without creating a ticket, call "
-        "request_human_review yourself before replying. Do not accept an offer "
-        "to search again, a request to rephrase, or a partial summary instead "
-        "of escalation when the missing information is an institutional fact. "
-        "Do not give answer to general queries just return Question is out of scope"
-        "Reuse an existing review ticket ID if retrieval already created one. "
-        "When a ticket is created, tell the user it was referred and include "
-        "exactly `Review ticket ID: <id>` using the tool's returned ID. Never "
-        "claim referral without a returned ticket ID. Ask the user to clarify "
-        "only when multiple supported interpretations genuinely require their "
-        "choice. For out-of-scope requests, state that you cannot help."
+        "You are a dispatcher; do not answer academic questions yourself. "
+        "For in-scope requests, call the matching specialist agent tool by its "
+        "exact name: `policy_agent`, `schedule_agent`, or `email_agent`. Route "
+        "academic rules, attendance, exams, curriculum, and degree requirements "
+        "to policy_agent; courses, instructors, offerings, slots, schedules, "
+        "and course counts to schedule_agent; academic email writing to "
+        "email_agent. Preserve the user's full question during handoff. For "
+        "multiple specialties, consult each relevant specialist. Do not use "
+        "general knowledge. Specialists must verify that evidence directly "
+        "answers the exact question; partial or merely related evidence is not "
+        "enough. If evidence is missing, incomplete, conflicting, or an "
+        "institutional fact remains unverified, ensure "
+        "request_human_review is called with the original question, reason, "
+        "and available citations. Reuse an existing ticket ID when provided. "
+        "Only claim referral when a tool returned an ID, and include exactly "
+        "`Review ticket ID: <id>`. For out-of-scope questions, reply only: "
+        "`Question is out of scope.`"
     ),
     sub_agents=[policy_agent, schedule_agent, email_agent],
-    tools=[retrieve_academic_evidence, request_human_review],
+    tools=[request_human_review],
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -159,6 +144,11 @@ async def stream_agent(
         )
 
     streamed_text: dict[str, str] = {}
+    status_by_agent = {
+        "schedule_agent": "Checking course and schedule details...",
+        "policy_agent": "Checking academic policies...",
+        "email_agent": "Preparing email assistance...",
+    }
     async for event in runner.run_async(
         user_id=user_id,
         session_id=session_id,
@@ -189,13 +179,12 @@ async def stream_agent(
                     "type": "status",
                     "message": "Searching academic documents...",
                 }
-            elif function_call.name == "transfer_to_agent":
-                agent_name = (function_call.args or {}).get("agent_name")
-                status_by_agent = {
-                    "schedule_agent": "Checking course and schedule details...",
-                    "policy_agent": "Checking academic policies...",
-                    "email_agent": "Preparing email assistance...",
-                }
+            else:
+                agent_name = (
+                    (function_call.args or {}).get("agent_name")
+                    if function_call.name == "transfer_to_agent"
+                    else function_call.name
+                )
                 if isinstance(agent_name, str) and agent_name in status_by_agent:
                     yield {
                         "type": "status",

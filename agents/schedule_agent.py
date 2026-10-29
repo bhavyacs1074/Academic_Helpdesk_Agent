@@ -8,6 +8,7 @@ from tools.academic_tools import count_courses, lookup_course
 schedule_agent = Agent(
     model=create_ollama_model(),
     name="schedule_agent",
+    mode="single_turn",
     description=(
         "Handles course catalog questions, course codes and names, course slots, "
         "timetables, semester offerings, and course counts by department, level, "

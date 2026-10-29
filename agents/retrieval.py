@@ -295,8 +295,8 @@ def retrieve(
 
 
 def retrieve_academic_evidence(query: str) -> dict[str, Any]:
-    """Minimal one-argument wrapper for future agent-tool registration."""
-    return retrieve(query)
+    """Return a compact evidence set for the agent's limited context window."""
+    return retrieve(query, top_k=3)
 
 
 def request_human_review(

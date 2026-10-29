@@ -5,6 +5,7 @@ from agents.retrieval import request_human_review, retrieve_academic_evidence
 email_agent = Agent(
     model=create_ollama_model(),
     name="email_agent",
+    mode="single_turn",
     description="A specialized agent that helps students with email communication, including drafting, editing, and responding to emails.",
     instruction=(
         "Use retrieval to find relevant academic policies when needed. If "
