@@ -9,6 +9,7 @@ type Message = { id: string; role: "user" | "assistant"; content: string };
 type StreamResult = { response: string; sessionId: string };
 
 const SESSION_STORAGE_KEY = "academic-helpdesk-session-id";
+const CHAT_REQUEST_TIMEOUT_MS = 600_000;
 
 const suggestions = [
   { icon: BookOpen, title: "Academic regulations", text: "What are the attendance requirements?", color: "violet" },
@@ -27,7 +28,7 @@ async function streamAssistantResponse(
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ message: question, session_id: sessionId }),
-    signal: AbortSignal.timeout(180_000),
+    signal: AbortSignal.timeout(CHAT_REQUEST_TIMEOUT_MS),
   });
   if (!response.ok) {
     throw new Error(`The chat service returned HTTP ${response.status}.`);
@@ -125,6 +126,7 @@ export default function Home() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [responseStarted, setResponseStarted] = useState(false);
+  const [progressMessage, setProgressMessage] = useState("Starting your request...");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -136,6 +138,7 @@ export default function Home() {
     setInput("");
     setLoading(false);
     setResponseStarted(false);
+    setProgressMessage("Starting your request...");
     setMobileSidebarOpen(false);
   }
 
@@ -154,6 +157,7 @@ export default function Home() {
     ]);
     setInput("");
     setResponseStarted(false);
+    setProgressMessage("Starting your request...");
     setLoading(true);
     const assistantId = window.crypto.randomUUID();
     try {
@@ -173,7 +177,7 @@ export default function Home() {
               : [...previous, { id: assistantId, role: "assistant", content: text }];
           });
         },
-        () => {},
+        setProgressMessage,
       );
       window.sessionStorage.setItem(SESSION_STORAGE_KEY, answer.sessionId);
       setSessionId(answer.sessionId);
@@ -189,7 +193,11 @@ export default function Home() {
       }
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : "The assistant request failed.";
+        error instanceof DOMException && error.name === "TimeoutError"
+          ? "The assistant took longer than expected. Start a new conversation and try again."
+          : error instanceof Error
+            ? error.message
+            : "The assistant request failed.";
       setMessages((previous) => {
         const existing = previous.some((item) => item.id === assistantId);
         return existing
@@ -327,13 +335,12 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                   >
                     <div
-                      className="typing-bubble"
+                      className="typing-status"
                       role="status"
                       aria-label="Assistant is typing"
                     >
-                      <span />
-                      <span />
-                      <span />
+                      <span className="response-progress-indicator" aria-hidden="true" />
+                      {progressMessage}
                     </div>
                   </motion.div>
                 )}
