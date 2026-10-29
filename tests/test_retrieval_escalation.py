@@ -25,12 +25,15 @@ class RetrievalEscalationTests(unittest.TestCase):
             tool_names = {tool.__name__ for tool in agent.tools}
             self.assertIn("request_human_review", tool_names, agent.name)
 
+        schedule_tool_names = {tool.__name__ for tool in schedule_agent.tools}
+        self.assertIn("lookup_course", schedule_tool_names)
+        self.assertIn("count_courses", schedule_tool_names)
         self.assertIn(
-            "Topically related passages are not sufficient evidence",
+            "topically related or partial passages are not enough",
             root_agent.instruction,
         )
         self.assertIn(
-            "If evidence is relevant but incomplete", schedule_agent.instruction
+            "If evidence is partial", schedule_agent.instruction
         )
         self.assertIn(
             "evidence is relevant but incomplete", policy_agent.instruction
