@@ -26,9 +26,11 @@ from agents.review_tickets import (
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 ADMIN_API_TOKEN = os.getenv("ADMIN_API_TOKEN", "")
+DEFAULT_ALLOWED_ORIGINS = "http://localhost:3000,http://127.0.0.1:3000"
 ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", DEFAULT_ALLOWED_ORIGINS).split(",")
+    if origin.strip()
 ]
 app = FastAPI(title="Academic Helpdesk Agent")
 app.add_middleware(

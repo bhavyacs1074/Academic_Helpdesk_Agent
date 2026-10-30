@@ -1,0 +1,289 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=0.82in,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\definecolor{IITBlue}{HTML}{173B57}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=IITBlue,
+  citecolor=IITBlue,
+  urlcolor=IITBlue,
+  pdftitle={Academic Helpdesk Multi-Agent System},
+  pdfauthor={Bhavya Uchat, Patil Sanskar, Aaditys Biswas}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Indian Institute of Technology Jodhpur}
+\fancyhead[R]{\small Assignment 2: Academic Helpdesk}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\setlist[itemize]{leftmargin=1.5em,itemsep=2pt,topsep=3pt}
+\setlist[enumerate]{leftmargin=1.8em,itemsep=2pt,topsep=3pt}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{5pt}
+\setlength{\LTpre}{5pt}
+\setlength{\LTpost}{8pt}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\title{\textbf{Assignment 2: Academic Helpdesk Multi-Agent System}\\[0.25em]
+\large Implementation and Evidence-Based Evaluation}
+\author{
+  Bhavya Uchat (B23CS1074)\\
+  Patil Sanskar (B23CS1050)\\
+  Aaditys Biswas (B23CS1001)\\[0.6em]
+  \normalsize Department of Computer Science and Engineering\\
+  \normalsize Indian Institute of Technology Jodhpur
+}
+\date{October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report describes the repository's local, multi-agent Academic Helpdesk for IIT Jodhpur. The implementation combines a Google Agent Development Kit (ADK) orchestrator, policy, schedule, and email agents, retrieval over a persistent ChromaDB collection, and Python tools for course lookup and course counts. Its current code uses Ollama with Gemma 4 E4B for chat and \texttt{nomic-embed-text} for embeddings. The supplied response log contains 18 distinct questions after duplicate entries are consolidated, but several answers are truncated or repeated and the log provides no ground-truth score sheet, routing traces, or repeated-run metadata. Follow-up results correct the O-grade response and show conflicting evidence for regular B.Tech. graduation credits. The findings remain a preliminary review of supplied outputs, not a statistically valid accuracy or refusal benchmark.
+\end{abstract}
+
+\section{Introduction}
+Academic helpdesk requests combine questions about regulations, curriculum, course offerings, and timetables with requests to draft formal correspondence. These facts change over time and are spread across documents and tables. A general-purpose language model can respond fluently while misstating a threshold, overlooking a timetable row, or answering beyond the evidence. Retrieval-augmented generation (RAG) provides a way to condition generation on documents and return source references \cite{lewis2020rag}.
+
+The project addresses this setting with three specialist agents and a helpdesk orchestrator. It is intended to answer academic questions from the local corpus, use structured tools where the source is tabular, draft emails for student review, and create a human-review ticket when evidence is missing or conflicting.
+
+This report documents the project architecture, data-processing pipeline, implemented tools, and a source-checked review of the supplied application results. It distinguishes observations supported by the repository from measurements that still require a controlled evaluation.
+
+\section{System Architecture}
+The application has a browser interface, a FastAPI service, ADK agents, local Ollama inference, a persistent Chroma index, and SQLite storage for sessions and review tickets. Figure~\ref{fig:architecture} shows the request path.
+
+\begin{figure}[htbp]
+\centering
+\fbox{%
+  \begin{minipage}{0.92\linewidth}
+  \centering
+  \textbf{Student question in the Next.js web client}\\[2pt]
+  $\Downarrow$\\[2pt]
+  \textbf{FastAPI: \texttt{/chat} or \texttt{/chat/stream}}\\[2pt]
+  $\Downarrow$\\[2pt]
+  \textbf{ADK helpdesk orchestrator}\\[4pt]
+  \begin{tabularx}{\linewidth}{@{}YYY@{}}
+    \textbf{Policy agent} & \textbf{Schedule agent} & \textbf{Email agent}\\
+    Policy RAG and review tool &
+    Course CSV tools, RAG, and review tool &
+    Policy retrieval and generated email drafts
+  \end{tabularx}\\[4pt]
+  $\Downarrow$\\[2pt]
+  \textbf{Cited response, clarification, refusal, or review-ticket referral}
+  \end{minipage}}
+\caption{Request flow through the current helpdesk implementation.}
+\label{fig:architecture}
+\end{figure}
+
+\subsection{Orchestrator}
+The root agent is defined in \path{agents/academic_agent.py}. Its instructions tell it to transfer academic requests to a specialist, preserve uncertainty, and refer unsupported or conflicting facts for human review. ADK performs the handoff between the agents. Routing is therefore model-directed; the repository does not implement a deterministic intent classifier or a strict regular-expression out-of-scope gate.
+
+The orchestrator also has retrieval and review-request tools. A fallback in the runner detects certain explicit specialist abstentions and creates a ticket if the specialist did not do so. This fallback is not a general detector for every unsupported statement.
+
+\subsection{Specialist agents and tools}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}L{0.17\linewidth}YY@{}}
+\toprule
+\textbf{Agent} & \textbf{Responsibility} & \textbf{Tools available in the current code}\\
+\midrule
+Policy & Academic rules, attendance, examinations, curriculum, and degree requirements. & Retrieve academic evidence; request human review.\\
+Schedule & Course code and title lookup, course offerings, slots, schedules, and counts. & \texttt{lookup\_course}; \texttt{count\_courses}; retrieve academic evidence; request human review.\\
+Email & Help drafting, editing, or replying to academic email requests. & Retrieve relevant policy evidence; request human review. The model writes the draft; the app does not send it.\\
+\bottomrule
+\end{tabularx}
+\caption{Current agent responsibilities and registered tools.}
+\label{tab:agents}
+\end{table}
+
+The structured tools in \path{tools/academic_tools.py} read timetable CSVs and course-list Markdown files. They return course details with a source row or line. The faculty directory is indexed for retrieval, but the current email agent does not have a separate structured faculty-email lookup function.
+
+\section{Knowledge Base and Retrieval Pipeline}
+\subsection{Data collection}
+The repository currently contains 49 files under \path{data/}: 15 Markdown files, 6 PDFs, and 28 CSV files. The collection includes policy and office-order material, curriculum guides, course details, a faculty directory, timetables, and an FAQ file.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{0.88\linewidth}{@{}L{0.23\linewidth}rY@{}}
+\toprule
+\textbf{File type} & \textbf{Count} & \textbf{How it is read}\\
+\midrule
+Markdown & 15 & Text is read as UTF-8.\\
+PDF & 6 & Embedded page text is extracted with \texttt{pypdf}; scanned-image OCR is not implemented.\\
+CSV & 28 & Rows are converted to labeled column/value text for the vector index.\\
+\midrule
+\textbf{Total files} & \textbf{49} & The count is files, not a verified count of 49 distinct official documents.\\
+\bottomrule
+\end{tabularx}
+\caption{Current files in the project data directory.}
+\label{tab:data}
+\end{table}
+
+The assignment asks for 20--30 real source documents. The file count alone does not establish that requirement: timetable tables and auxiliary files may not count as separate source documents, and provenance should be checked and recorded for the selected corpus.
+
+\subsection{Index construction and retrieval}
+The ingestion script \path{scripts/ingest_pdfs.py} processes CSV rows, Markdown documents, and PDF pages. It splits text into overlapping word chunks of 250 words with 50 words of overlap. It generates embeddings through Ollama's local \texttt{/api/embed} endpoint using \texttt{nomic-embed-text}, then stores documents, embeddings, and location metadata in ChromaDB. The default persistent directory is \path{chroma_db/}; the collection name is derived from the embedding model. Chroma's persistent client stores the collection on disk \cite{chroma}.
+
+At query time, \path{agents/retrieval.py} combines semantic candidate rankings from Chroma with BM25-style keyword rankings over the loaded corpus. It fuses the rankings with reciprocal-rank scores, applies a default semantic-similarity floor, and retains exact course-code matches. Results carry a source path and, where available, a PDF page, CSV row, or Markdown chunk. Missing evidence can create a persistent review ticket. The configured embedding model and local API follow Ollama's embedding API pattern \cite{ollama}.
+
+\subsection{Structured course lookup and counting}
+The schedule agent calls \texttt{lookup\_course} for a course code or name and \texttt{count\_courses} for counts. The count tool filters by department and required semester, with optional academic year, course level, and elective-only filters. It deduplicates repeated course offerings by course identity, department, semester, and year.
+
+The tool parser searches each CSV for a recognizable course-code and course-name header and uses that header mapping for following rows. Several timetable files have different structures, so this approach does not guarantee that every CSV is represented. Count results must be checked against their source rows, particularly when a file has repeated headers, missing term metadata, or a nonstandard layout.
+
+\section{Application Runtime and Persistence}
+The FastAPI server in \path{server.py} provides synchronous and streaming chat endpoints. The Next.js client uses the streaming endpoint to display generated text and status updates. ADK session history is stored in \path{.local/agent_sessions.db}; this supports follow-up turns associated with the same session ID.
+
+Questions referred for human review are stored separately in \path{.local/review_tickets.db}. The ticket system records the question, reason, evidence summary, status, and event history. Similar open or claimed questions are deduplicated. Administrators can claim, answer, close, and explicitly publish a reviewed answer to \path{data/FAQ.md}. Publishing is a human action; the FAQ must be re-indexed before retrieval can use the new entry.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{0.92\linewidth}{@{}L{0.28\linewidth}YY@{}}
+\toprule
+\textbf{Store} & \textbf{Contents} & \textbf{Persistence location}\\
+\midrule
+ChromaDB & Indexed document chunks, embeddings, and source metadata. & \path{chroma_db/} by default.\\
+ADK session database & Conversation events used for follow-up turns. & \path{.local/agent_sessions.db}.\\
+Review-ticket database & Unanswered questions, evidence, statuses, and review events. & \path{.local/review_tickets.db}.\\
+\bottomrule
+\end{tabularx}
+\caption{Local persistent data stores used by the application.}
+\label{tab:stores}
+\end{table}
+
+\section{Evaluation Method}
+The evaluation material for this report is the pasted query/answer text supplied with the request. Exact repeated questions were consolidated, leaving 18 distinct prompts. Two later answers update the results for the O-grade and graduation-credit prompts; they update those same prompts and do not increase the prompt count. The pasted material does not include expected agent labels, a ground-truth answer sheet, the ADK execution trace, model/version details per run, or an explicit number of trials. Several answers are cut off or concatenated with duplicate text.
+
+Each distinct prompt was reviewed for four observable properties:
+\begin{enumerate}
+  \item whether the response addressed the requested intent;
+  \item whether the result is supported by a source currently present in \path{data/};
+  \item whether a visible citation identifies a source and useful location;
+  \item whether an unanswered or out-of-scope query was refused, clarified, or referred for review.
+\end{enumerate}
+
+This is a manual inspection of the supplied outputs, not an execution of a controlled benchmark. A response with a citation was not automatically counted as correct: the cited source was checked for the relevant fact. No routing-accuracy, latency, memory, or repeated-run percentage is reported because the pasted evidence does not support those measurements.
+
+\section{Observed Results}
+The log demonstrates several useful grounded answers. The response to the Slot A question matches \path{data/timetable/slot_timing_guide.md}; the CSL1010 answer matches row 3 of the CSE course-list CSV; the course-drop response cites the registration policy; and the attendance, summer-credit, and branch-change answers contain source references consistent with local files. Two follow-up results were also supplied for the O-grade and graduation-credit questions. The O-grade response now correctly states that O carries 10 grade points and cites both \path{data/policies/grading_system.md} (chunk 2) and \path{data/policies/academic_regulations.pdf} (page 8).
+
+The original response log contains three false abstentions that need to be distinguished from the follow-up results. The O-grade abstention has been corrected by the cited follow-up answer. The I-grade deadline remains a false abstention: \path{data/policies/grading_system.md} says an I grade must be resolved by the next/subsequent semester. The graduation-credit follow-up appropriately reports conflicting figures and signals that the sources need review. Its specifically located citations show 150 or 160 total graded credits in \path{data/curriculum/IITJ_CSE_CURRICULUM.pdf} (page 9) and 165 total graduation credits for the regular B.Tech. column in \path{data/policies/btech_credit_requirements.md} (chunk 2). The answer also mentions totals of 175 and 211 in other table contexts, but the supplied excerpt does not identify precise source locations for those two figures. The response should keep the discrepancy visible and cite each table precisely before offering one definitive number.
+
+The excerpt also shows incomplete schedule and condonation outputs, duplicate answer text, and mixed user-facing handling of unsupported questions. Creating a review ticket is a valid way to log an unanswered or unresolved question, as required by the assignment; for an out-of-scope question, the response can clearly say that the system does not know while still creating a ticket for human review. A pasted answer without a visible ticket ID does not establish whether a ticket was or was not created. The observations are summarized in Table~\ref{tab:summary}; prompt-level notes follow in Table~\ref{tab:prompts}.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\linewidth}{@{}L{0.31\linewidth}L{0.19\linewidth}Y@{}}
+\toprule
+\textbf{Observation from supplied results} & \textbf{Count / extent} & \textbf{Interpretation}\\
+\midrule
+Distinct prompts after consolidating repeats & 18 & An observed prompt count only; not a designed benchmark size.\\
+Clearly supported answers with visible source references & At least 7 & Slot A, CSL1010, add/drop approval, attendance, below-65\% outcome, summer credits, and branch-change threshold.\\
+False abstentions in the original log & 3 & The O-grade answer has since been corrected; the I-grade deadline remains a false abstention. The graduation-credit follow-up reports conflicting source figures rather than a simple abstention.\\
+Unresolved false abstentions after follow-ups & 1 & The I-grade deadline remains unsupported in the answer, although the fact is present in the local corpus.\\
+Follow-up source-grounded answers & 2 & O = 10 grade points is supported by two cited sources; the graduation-credit response identifies inconsistent figures and cites the relevant source locations.\\
+Truncated answers & At least 2 & The MAL2170 and 70\%-attendance responses cannot be scored completely from the excerpt.\\
+Review-ticket handling & Valid escalation path & Ticket creation is a valid way to log unanswered or unresolved questions; the pasted text does not show ticket IDs for every refusal, so logging cannot be verified for those cases.\\
+Formal performance metrics & Not computed & No expected answers, routing traces, repeat-run logs, or hardware measurements were supplied.\\
+\bottomrule
+\end{tabularx}
+\caption{Summary of what can and cannot be concluded from the pasted results.}
+\label{tab:summary}
+\end{table}
+
+\small
+\begin{longtable}{@{}L{0.075\linewidth}L{0.27\linewidth}L{0.575\linewidth}@{}}
+\caption{Prompt-level review of the 18 distinct query/answer pairs.}\label{tab:prompts}\\
+\toprule
+\textbf{ID} & \textbf{Question summary} & \textbf{Observed result and source check}\\
+\midrule
+\endfirsthead
+\toprule
+\textbf{ID} & \textbf{Question summary} & \textbf{Observed result and source check}\\
+\midrule
+\endhead
+\midrule
+\multicolumn{3}{r}{\small Continued on next page}\\
+\endfoot
+\bottomrule
+\endlastfoot
+SCH-01 & Monday Slot A times & Gives 08:00--08:55 on Monday, Wednesday, and Friday, matching the slot guide. It also creates a review ticket, which is a valid logging action; the answer should present its ticket ID clearly alongside the cited result.\\
+SCH-02 & CSL1010 instructor and slot & Gives Anand Mishra and Yashaswi Verma with slot AF (Fixed), matching row 3 of \path{data/timetable/Finalized courses list -CSE.csv}.\\
+SCH-03 & MAL2170 instructor and slot & The answer ends mid-sentence while describing Math/BSBE records. The pasted output is insufficient to judge whether it resolved the duplicate offerings and cited the correct rows.\\
+POL-01 & Course drop approval & States that Faculty Advisor approval is needed before the registration deadline, consistent with \path{data/policies/course_registration_rules.md}.\\
+QRY-01 & Most highly rated course & A review ticket is created, appropriately logging an unanswered question. The log labels the request non-academic even though it concerns course ratings, so the scope classification needs correction.\\
+PRV-01 & Individual student CGPA & Refers the query for review without inventing a personal record. This is a cautious response; the excerpt does not establish how such records should be handled.\\
+SCH-04 & Next exam date without course list & Creates a review ticket, a valid way to log the unresolved question. The question lacks course/program details, so the response could also request clarification.\\
+OOS-01 & Current Jodhpur weather & Creates a review ticket, which is a valid way to log a question the helpdesk cannot answer. The user-facing reply should also make the out-of-scope refusal clear.\\
+OOS-02 & Medical diagnosis and medicine & Refuses to provide medical advice. No ticket ID is visible in the pasted result, so ticket logging cannot be confirmed from this excerpt.\\
+OOS-03 & Python list-sorting function & Refuses the unrelated request. No ticket ID is visible in the pasted result, so ticket logging cannot be confirmed from this excerpt.\\
+POL-02 & Major-exam attendance threshold & Gives 75\% and cites the attendance circular and policy detail; these sources support the stated requirement.\\
+POL-03 & Condonation at 70\% & The answer is truncated before the steps and final approver are fully stated. The local attendance policy says 65\%--74\% may apply, with instructor recommendation and Dean (Academics) approval.\\
+POL-04 & Attendance below 65\% & Gives DX and debarment from the Major exam, consistent with the attendance amendment and attendance policy detail.\\
+POL-05 & O-grade points & The original log says no evidence was found, but the follow-up response correctly gives O = 10 grade points and cites \path{data/policies/grading_system.md} (chunk 2) and \path{data/policies/academic_regulations.pdf} (page 8). This corrects the earlier false abstention.\\
+POL-06 & I-grade resolution deadline & Says no evidence was found, but \path{data/policies/grading_system.md} says it must be resolved by the next/subsequent semester. This is a false abstention.\\
+POL-07 & Regular B.Tech. graduation credits & The follow-up response identifies conflicting totals instead of presenting one as certain. The specifically located citations are 165 total graduation credits in the regular B.Tech. column of \path{data/policies/btech_credit_requirements.md} (chunk 2), and 150 or 160 total graded credits in \path{data/curriculum/IITJ_CSE_CURRICULUM.pdf} (page 9). It also mentions 175 and 211 in other table contexts, but the supplied answer does not give precise source locations for those figures. It appropriately flags that the sources need review before stating one definitive total.\\
+POL-08 & Maximum summer credits & Gives 8 credits for undergraduate students and 16 for a specified M.Tech. category, with a page citation. The answer text is duplicated in the pasted log.\\
+POL-09 & Semester-II branch-change CGPA & Gives a GEN/OBC/EWS threshold of 8.5 and cites two local sources. The factual threshold is supported, but the output includes stray markup fragments.\\
+\end{longtable}
+\normalsize
+
+\subsection{Scope and source-quality findings}
+The assignment requires the system to say it does not know for unrelated questions and to keep a log of unanswered questions. A review ticket is a valid implementation of that logging requirement, including for out-of-scope queries, as long as the user-facing response still clearly refuses to guess. The weather query's ticket is therefore a valid escalation path; the pasted health and Python answers show refusals, but their lack of visible ticket IDs means the excerpt alone cannot confirm whether they were logged. The coursework-rating query was categorized as non-academic even though it concerns academic data, which suggests the scope decision could be improved. These examples are insufficient to compute a refusal rate.
+
+The corpus itself also needs review. For example, \path{data/policies/attendance_policy_detail.md} distinguishes a 65\%--74\% condonation range from the below-65\% DX threshold, while \path{data/policies/grading_system.md} describes DX more broadly as a failure to meet the 75\% minimum. The applicable attendance amendment should be verified and identified as the controlling source, and older or overbroad wording should be reconciled. The Open Elective requirement is also expressed as \textquotedblleft 10.0 (or 12.0 min)\textquotedblright in the credit table and \textquotedblleft 10 to 12\textquotedblright in prose. These source ambiguities can undermine otherwise relevant retrieval.
+
+\section{Limitations and Next Evaluation Steps}
+The current evidence supports the following conclusions and follow-up work:
+\begin{enumerate}
+  \item Build a 20--30 prompt evaluation set with expected agent, expected answer facts, source citation, and expected out-of-scope handling for each prompt.
+  \item Run each prompt against the same indexed data and record model name, prompt, tool calls, final answer, citations, ticket ID, and run number. Repeat each prompt several times before reporting consistency or percentages.
+  \item Add focused evaluation for \texttt{lookup\_course} and \texttt{count\_courses}, including files with repeated headers and different CSV layouts. Counts should be compared to manually verified rows.
+  \item Test the current false-abstention cases against the indexed collection and inspect the retrieved chunks, not only the final model text.
+  \item Define a consistent rule for out-of-scope refusal versus an academic question that is in scope but lacks evidence. Ensure any question referred for review has a visible, traceable ticket ID.
+  \item Add email-drafting prompts and verify that the email agent includes only supported instructor and policy details. The supplied result set contains no email-drafting example.
+  \item Record source provenance and select 20--30 qualifying documents for the assignment's corpus requirement.
+  \item Measure memory and response time on the target 16 GB machine. The repository configuration alone does not prove that resource target.
+\end{enumerate}
+
+The currently configured chat model is Gemma 4 E4B. The supplied log does not include model/build metadata or responses from alternate models, so no comparative model claim can be made.
+
+\section{Conclusion}
+The repository contains a working project structure for a local academic helpdesk: an ADK orchestrator, three specialists, hybrid RAG, citation metadata, course lookup/count tools, and a SQLite human-review queue. The supplied results include several answers that match local sources, a corrected O-grade answer, and a graduation-credit answer that surfaces conflicting source values instead of asserting an unsupported single total. The original log still contains a false abstention on the I-grade deadline, along with truncated responses and formatting defects. Review-ticket creation is a valid mechanism for logging questions that need human review; clear refusals should accompany tickets for out-of-scope questions. The current evidence does not justify benchmark percentages for accuracy, groundedness, routing, or refusal. A curated prompt set, verified answer key, repeatable logs, and targeted CSV/RAG evaluation are needed before reporting those metrics.
+
+\begin{thebibliography}{9}
+\bibitem{lewis2020rag}
+P. Lewis et al., Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks, in \emph{Advances in Neural Information Processing Systems 33}, 2020. Available: \url{https://papers.nips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html}.
+
+\bibitem{adk}
+Google, Agent Development Kit documentation. Available: \url{https://google.github.io/adk-docs/}.
+
+\bibitem{chroma}
+Chroma, Python client reference: PersistentClient. Available: \url{https://docs.trychroma.com/reference/python}.
+
+\bibitem{ollama}
+Ollama, Embedding models and API. Available: \url{https://ollama.com/library/nomic-embed-text}.
+
+\bibitem{project}
+Project implementation and source corpus: \path{agents/}, \path{tools/academic_tools.py}, \path{scripts/}, and \path{data/}. The report's source checks use the files in the repository at report preparation time.
+\end{thebibliography}
+
+\end{document}
