@@ -292,16 +292,6 @@ python -m unittest discover -s tests -v
 
 These tests check software behavior; they are not the assignment’s 20–30-question answer-quality evaluation.
 
-## Known limitations and remaining assignment work
-
-- `count_courses` requires both a department and semester. It supports semester I/II or 1/2, optional academic year, course level, and elective-only filters.
-- The course CSV parser looks for a recognizable course-code and course-name header, then applies that header layout to subsequent rows. Timetable CSVs have differing layouts, so some may not be parsed completely. Verify counts and slots against the cited source files, especially for files with repeated headers or unusual column names.
-- Out-of-scope refusal is directed by the orchestrator’s instructions; it is not enforced by a separate deterministic classifier.
-- The faculty directory is available to document retrieval, but there is no dedicated structured faculty-email lookup tool.
-- Email assistance drafts text; it does not send email.
-- Scanned PDF OCR is not implemented.
-- The assignment’s 20–30 prompt set and findings report are not present as a model-evaluation dataset/report. Add the prompts and evaluate answer accuracy, citation groundedness, correct refusals, and answer changes across repeated runs or models.
-- The 16 GB laptop target has not been benchmarked in this repository. Check local memory and disk usage with the chosen Ollama model.
 
 ## Environment variables
 
